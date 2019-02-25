@@ -1,11 +1,5 @@
-import numpy as np
-import math
-from tensorflow.keras.initializers import normal, identity
-from tensorflow.keras.models import model_from_json, load_model
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Flatten, Input, Lambda, Activation
-from tensorflow.keras.layers import concatenate, add
-from tensorflow.keras.models import Sequential, Model
+from tensorflow.keras.layers import Dense, Flatten, Input, Lambda, Activation, concatenate, add
+from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 import tensorflow.keras.backend as K
 import tensorflow as tf
@@ -23,7 +17,6 @@ class CriticNetwork(object):
         
         K.set_session(sess)
 
-        #Now create the model
         self.model, self.action, self.state = self.create_critic_network(state_size, action_size)  
         self.target_model, self.target_action, self.target_state = self.create_critic_network(state_size, action_size)  
         self.action_grads = tf.gradients(self.model.output, self.action)  #GRADIENTS for policy update
