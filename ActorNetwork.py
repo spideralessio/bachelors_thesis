@@ -1,10 +1,6 @@
-import numpy as np
-import math
-from tensorflow.keras.initializers import normal, identity
-from tensorflow.keras.models import model_from_json
-from tensorflow.keras.models import Sequential, Model
-from tensorflow.keras.layers import Dense, Flatten, Input, Lambda
-from tensorflow.keras.layers import concatenate
+from tensorflow.initializers import variance_scaling
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Dense, Flatten, Input, Lambda, concatenate
 from tensorflow.keras.optimizers import Adam
 import tensorflow as tf
 import tensorflow.keras.backend as K
@@ -48,11 +44,11 @@ class ActorNetwork(object):
         S = Input(shape=[state_size])   
         h0 = Dense(HIDDEN1_UNITS, activation='relu')(S)
         h1 = Dense(HIDDEN2_UNITS, activation='relu')(h0)
-        Steering = Dense(1,activation='tanh')(h1)#,init=lambda shape, name: normal(shape, scale=1e-4, name=name))(h1)  
-        Acceleration = Dense(1,activation='sigmoid')(h1)#,init=lambda shape, name: normal(shape, scale=1e-4, name=name))(h1)   
-        Brake = Dense(1,activation='sigmoid')(h1)#,init=lambda shape, name: normal(shape, scale=1e-4, name=name))(h1) 
-        Gear = Dense(8,activation='softmax')(h1)
-        V = concatenate([Steering,Acceleration,Brake,Gear])          
+        Steering = Dense(1,activation='tanh',kernel_initializer=variance_scaling(scale=1e-4, distribution='normal'), bias_initializer=variance_scaling(scale=1e-4, distribution='normal'))(h1)#,init=lambda shape, name: normal(shape, scale=1e-4, name=name))(h1)  
+        Acceleration = Dense(1,activation='sigmoid', kernel_initializer=variance_scaling(scale=1e-4, distribution='normal'), bias_initializer=variance_scaling(scale=1e-4, distribution='normal'))(h1)#,init=lambda shape, name: normal(shape, scale=1e-4, name=name))(h1)   
+        Brake = Dense(1,activation='sigmoid', kernel_initializer=variance_scaling(scale=1e-4, distribution='normal'), bias_initializer=variance_scaling(scale=1e-4, distribution='normal'))(h1) 
+        #Gear = Dense(3,activation='softmax')(h1)
+        V = concatenate([Steering,Acceleration,Brake])          
         model = Model(inputs=S, outputs=V)
         return model, model.trainable_weights, S
 
