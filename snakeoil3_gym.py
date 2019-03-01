@@ -283,8 +283,10 @@ class Client():
         if not self.so: return
         print(("Race terminated or %d steps elapsed. Shutting down %d."
                % (self.maxSteps,self.port)))
-        self.so.close()
-        self.so = None
+        self.R.d['meta'] = True
+        self.respond_to_server()
+        #self.so.close()
+        #self.so = None
         #sys.exit() # No need for this really.
 
 class ServerState():

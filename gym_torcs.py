@@ -14,13 +14,13 @@ class TorcsEnv:
     terminal_judge_start = 100  # If after 100 timestep still no progress, terminated
     termination_limit_progress = 0  # [km/h], episode terminates if car is running slower than this limit
     default_speed = 50
-
     initial_reset = True
 
-    def __init__(self, vision=False, throttle=False, gear_change=False):
+    def __init__(self, vision=False, throttle=False, gear_change=False, wanted_speed=150):
         self.vision = vision
         self.throttle = throttle
         self.gear_change = gear_change
+        self.wanted_speed = wanted_speed
 
         self.initial_run = True
 
@@ -60,12 +60,11 @@ class TorcsEnv:
             self.observation_space = spaces.Box(low=low, high=high)
 
     def step(self, u):
-       #print("Step")
+        #print("Step")
         # convert thisAction to the actual torcs actionstr
         client = self.client
-
+        #print("u",u)
         this_action = self.agent_to_torcs(u)
-
         # Apply Action
         action_torcs = client.R.d
 
@@ -73,6 +72,7 @@ class TorcsEnv:
         action_torcs['steer'] = this_action['steer']  # in [-1, 1]
 
         #  Simple Autnmatic Throttle Control by Snakeoil
+
         if self.throttle is False:
             target_speed = self.default_speed
             if client.S.d['speedX'] < target_speed - (client.R.d['steer']*50):
@@ -133,22 +133,20 @@ class TorcsEnv:
         sp = np.array(obs['speedX'])
         damage = np.array(obs['damage'])
         rpm = np.array(obs['rpm'])
+        angle = np.array(obs['angle'])
 
-        progress = sp*np.cos(obs['angle']) - np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos'])
-        reward = progress
 
+        reward = 0.01*(-sp**2 + sp*2*self.wanted_speed)*(np.cos(obs['angle']) + (1-np.abs(trackPos)) )# - np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos'])
         # collision detection
-        if obs['damage'] - obs_pre['damage'] > 0:
-            reward = progress - 5
-
-        # Termination judgement #########################
-        #episode_terminate = False
-        if (abs(track.any()) > 1 or abs(trackPos) > 1):  # Episode is terminated if the car is out of track
-            reward = progress - 50
-            #episode_terminate = True
-            #client.R.d['meta'] = True
-
-
+        #if obs['damage'] - obs_pre['damage'] > 0:
+        #    reward = progress - 5
+        #if sp>=50:
+        #reward -= 10*abs(self.avg_speed - self.wanted_speed)/self.wanted_speed
+        #else:
+        #    reward -= 10
+        #print("Speed", sp)
+        #print("Parabola", (-sp**2 + sp*2*self.wanted_speed))
+        #print("trackPos", trackPos, "angle", angle, "sum", np.cos(obs['angle']) + (1-np.abs(trackPos)) )
 
         if sp < self.termination_limit_progress:
             if self.terminal_judge_start < self.time_step: # Episode terminates if the progress of agent is small
@@ -159,13 +157,15 @@ class TorcsEnv:
         else:
             self.terminal_judge_start = self.termination_limit_progress + 100
 
+        # Termination judgement #########################
+        #episode_terminate = False
+        if (abs(track.any()) > 1 or abs(trackPos) > 1):  # Episode is terminated if the car is out of track
+            reward = -200
+            episode_terminate = True
+            client.R.d['meta'] = True
 
-        if obs['rpm'] < 0.1 or obs['rpm'] > 0.8 or action_torcs['gear'] == 0: #RPM must be between 1k and 8k and gear != 0
-            reward = progress - 10
 
-
-
-        if np.cos(obs['angle']) < 0: # Episode is terminated if the agent runs backward
+        if np.cos(angle) < 0: # Episode is terminated if the agent runs backward
             reward = -200
             episode_terminate = True
             client.R.d['meta'] = True
@@ -175,15 +175,16 @@ class TorcsEnv:
             self.initial_run = False
             client.respond_to_server()
 
-        self.time_step += 1
 
+
+        self.time_step += 1
+        self.avg_speed = ((self.avg_speed*self.time_step) + obs['speedX'])/(self.time_step + 1)
         return self.get_obs(), reward, client.R.d['meta'], {}
 
     def reset(self, relaunch=False):
         #print("Reset")
 
         self.time_step = 0
-
         if self.initial_reset is not True:
             self.client.R.d['meta'] = True
             self.client.respond_to_server()
@@ -206,6 +207,7 @@ class TorcsEnv:
         self.last_u = None
 
         self.initial_reset = False
+        self.avg_speed = obs["speedX"]
         return self.get_obs()
 
     def end(self):
@@ -215,13 +217,13 @@ class TorcsEnv:
         return self.observation
 
     def reset_torcs(self):
-       #print("relaunch torcs")
+        #print("relaunch torcs")
         os.system('pkill torcs')
         time.sleep(0.5)
         if self.vision is True:
-            os.system('torcs  -T -nofuel -nodamage -nolaptime -vision &')
+            os.system('torcs -nofuel -nodamage -nolaptime -vision &')
         else:
-            os.system('torcs  -T -nofuel -nolaptime &')
+            os.system('torcs -nofuel -nolaptime &')
         time.sleep(0.5)
         os.system('sh autostart.sh')
         time.sleep(0.5)

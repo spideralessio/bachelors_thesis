@@ -14,6 +14,7 @@ from ActorNetwork import ActorNetwork
 from CriticNetwork import CriticNetwork
 from OU import OU
 import timeit
+import sys
 
 OU = OU()       #Ornstein-Uhlenbeck Process
 
@@ -22,7 +23,7 @@ def softmax(x):
     e_x = np.exp(x - np.max(x))
     return e_x / e_x.sum(axis=0) # only difference
 
-def playGame(train_indicator=0):    #1 means Train, 0 means simply Run
+def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
     BUFFER_SIZE = 100000
     BATCH_SIZE = 32
     GAMMA = 0.99
@@ -30,8 +31,8 @@ def playGame(train_indicator=0):    #1 means Train, 0 means simply Run
     LRA = 0.0001    #Learning rate for Actor
     LRC = 0.001     #Lerning rate for Critic
 
-    action_dim = 6  #Steering/Acceleration/Brake/GearUp,NoChangeGear,GearDown/
-    state_dim = 29  #of sensors input
+    action_dim = 3  #Steering/Acceleration/Brake
+    state_dim = 25 #of sensors input + wanted_speed
 
     np.random.seed(1337)
 
@@ -49,6 +50,7 @@ def playGame(train_indicator=0):    #1 means Train, 0 means simply Run
     #Tensorflow GPU optimization
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
+    summary_writer = tf.summary.FileWriter("output")
     sess = tf.Session(config=config)
     from tensorflow.keras import backend as K
     K.set_session(sess)
@@ -58,9 +60,9 @@ def playGame(train_indicator=0):    #1 means Train, 0 means simply Run
     buff = ReplayBuffer(BUFFER_SIZE)    #Create replay buffer
 
     # Generate a Torcs environment
-    env = TorcsEnv(vision=vision, throttle=True,gear_change=True)
+    env = TorcsEnv(vision=vision, throttle=True, gear_change=False)
 
-    gear_p = 0.2
+    #gear_p = 0.19
 
     #Now load the weight
     print("Now we load the weight")
@@ -81,8 +83,11 @@ def playGame(train_indicator=0):    #1 means Train, 0 means simply Run
             ob = env.reset(relaunch=True)   #relaunch TORCS every 3 episode because of the memory leak error
         else:
             ob = env.reset()
-
-        s_t = np.hstack((ob.angle, ob.track, ob.trackPos, ob.speedX, ob.speedY,  ob.speedZ, ob.wheelSpinVel/100.0, ob.rpm))
+        env.wanted_speed = random.randint(50,110)
+        env.avg_speed = 0
+        #gear = 1
+        #gear_p += 0.001
+        s_t = np.hstack((ob.angle, ob.track, ob.trackPos, ob.speedX, ob.speedY, ob.speedZ, env.wanted_speed))
      
         total_reward = 0.
         for j in range(max_steps):
@@ -92,40 +97,52 @@ def playGame(train_indicator=0):    #1 means Train, 0 means simply Run
             noise_t = np.zeros([1,action_dim])
             
             a_t_original = actor.model.predict(s_t.reshape(1, s_t.shape[0]))
-            noise_t[0][0] = train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][0],  0.0 , 0.60, 0.30)
-            noise_t[0][1] = train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][1],  0.5 , 1.00, 0.10)
+            noise_t[0][0] = train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][0],  0.0 , 0.60, 0.10)
+            noise_t[0][1] = train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][1],  0.6 , 1.00, 0.10)
             noise_t[0][2] = train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][2], -0.1 , 1.00, 0.05)
 
-            for x in range(3,action_dim):
-                noise_t[0][x] = 0
+            #for x in range(3,action_dim):
+            #    noise_t[0][x] = 0#train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][1],  0.5, 0.60, 0.10)
 
             #The following code do the stochastic brake
-            if random.random() <= 0.1:
+            if random.random() <= 0.1 and train_indicator:
                 print("********Now we apply the brake***********")
-                noise_t[0][2] = train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][2],  0.2 , 1.00, 0.10)
+                noise_t[0][2] = train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][1],  0.1, 1.00, 0.10)
             
             for x in range(action_dim):
                 a_t[0][x] = a_t_original[0][x] + noise_t[0][x]
-
-            #if random.random() >= gear_p:
-            #    gear = random.randint(-1,6)
-            #    print("stochastic gear: %d"% gear)
+            
+            #a_t[0][2] = 0#max(0., a_t[0][2])
+            #a_t[0][1] = -1
+            #if random.random() >= gear_p and train_indicator == 1:
+            #    print("Stochastic gear p:", 1-gear_p)
+            #    gear_change = random.randint(-1,1)
+            #    print("stochastic gear: %d"% gear_change)
             #    a_t = a_t.tolist()
-            #    a_t[0] = a_t[0][:3] + [1 if g-1 == gear else 0 for g in range(8)]
+            #    a_t[0] = a_t[0][:3] + [1 if g-1 == gear_change else 0 for g in range(3)]
             #    a_t = np.array(a_t)
             #else:
-            #    gear = np.argmax(a_t[0][3:]) - 1
+            #    gear_change = np.argmax(a_t[0][3:]) - 1
+            #def sigmoid(x, derivative=False):
+            #    x = np.array(x)
+            #    sigm = 1. / (1. + np.exp(-x))
+            #    if derivative:
+            #        return sigm * (1. - sigm)
+            #    return sigm.tolist()
+            #a_t = a_t.tolistos.sys()
+            #a_t[0] = a_t[0][:3] + sigmoid(a_t[0][3:])
+            #a_t = np.array(a_t)
+            print("AVG Speed", env.avg_speed, "WANTED Speed", env.wanted_speed, "Speed", ob.speedX*300)
+            #steering = a_t[0][0]
+            #acceleration = a_t[0][1]
+            #brake = a_t[0][2]
+            #gear = gear + gear_change
+            #if gear > 6: gear = 6
+            #if gear < -1: gear = -1
+            #performed_action = [steering, acceleration, brake, gear]
+            ob, r_t, done, info = env.step(a_t[0])
 
-
-            
-            a_t = a_t.tolist()
-            a_t[0] = a_t[0][:3] + [1 if g-1 == gear else 0 for g in range(3)]
-            a_t = np.array(a_t)
-
-            performed_action = [a_t[0][0], a_t[0][1], a_t[0][2], gear]
-            ob, r_t, done, info = env.step(performed_action)
-
-            s_t1 = np.hstack((ob.angle, ob.track, ob.trackPos, ob.speedX, ob.speedY, ob.speedZ, ob.wheelSpinVel/100.0, ob.rpm))
+            s_t1 = np.hstack((ob.angle, ob.track, ob.trackPos, ob.speedX, ob.speedY, ob.speedZ, env.wanted_speed))
             buff.add(s_t, a_t[0], r_t, s_t1, done)      #Add replay buffer
             
             #Do the batch update
@@ -156,8 +173,7 @@ def playGame(train_indicator=0):    #1 means Train, 0 means simply Run
             total_reward += r_t
             s_t = s_t1
         
-            print("Episode", i, "Step", step, "Action", performed_action, "Reward", r_t, "Loss", loss)
-        
+            print("Episode", i, "Step", step, "Action", a_t[0], "Reward", r_t, "Loss", loss)
             step += 1
             if done:
                 break
@@ -172,7 +188,20 @@ def playGame(train_indicator=0):    #1 means Train, 0 means simply Run
                 critic.model.save_weights("criticmodel.h5", overwrite=True)
                 with open("criticmodel.json", "w") as outfile:
                     json.dump(critic.model.to_json(), outfile)
+        if np.mod(i, 5000) == 0:
+            if (train_indicator):
+                print("Now we save model")
+                actor.model.save_weights("actormodel.%d.h5"%i, overwrite=True)
+                with open("actormodel.%d.json"%i, "w") as outfile:
+                    json.dump(actor.model.to_json(), outfile)
 
+                critic.model.save_weights("criticmodel.%d.h5"%i, overwrite=True)
+                with open("criticmodel.%d.json"%i, "w") as outfile:
+                    json.dump(critic.model.to_json(), outfile)
+        summary = tf.Summary()
+        summary.value.add(tag='episode_reward', simple_value=total_reward)
+        summary_writer.add_summary(summary, i)
+        summary_writer.flush()
         print("TOTAL REWARD @ " + str(i) +"-th Episode  : Reward " + str(total_reward) + " Steps:%d"%j)
         print("Total Step: " + str(step))
         print("")
@@ -181,4 +210,9 @@ def playGame(train_indicator=0):    #1 means Train, 0 means simply Run
     print("Finish.")
 
 if __name__ == "__main__":
-    playGame()
+    if len(sys.argv) > 1:
+        train_indicator = int(sys.argv[1])
+        sys.argv = [sys.argv[0]]
+        playGame(train_indicator)
+    else:
+        playGame()
