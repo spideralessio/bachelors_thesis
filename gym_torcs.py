@@ -151,7 +151,7 @@ class TorcsEnv:
         if sp < self.termination_limit_progress:
             if self.terminal_judge_start < self.time_step: # Episode terminates if the progress of agent is small
                 print("No progress")
-                reward = -200
+                reward = -1000
                 episode_terminate = True
                 client.R.d['meta'] = True
         else:
@@ -160,13 +160,13 @@ class TorcsEnv:
         # Termination judgement #########################
         #episode_terminate = False
         if (abs(track.any()) > 1 or abs(trackPos) > 1):  # Episode is terminated if the car is out of track
-            reward = -200
+            reward = -1000
             episode_terminate = True
             client.R.d['meta'] = True
 
 
         if np.cos(angle) < 0: # Episode is terminated if the agent runs backward
-            reward = -200
+            reward = 1000
             episode_terminate = True
             client.R.d['meta'] = True
 

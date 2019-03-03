@@ -39,7 +39,7 @@ def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
     vision = False
 
     EXPLORE = 100000.
-    episode_count = 2000
+    episode_count = 5000
     max_steps = 100000
     reward = 0
     done = False
@@ -62,6 +62,7 @@ def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
     # Generate a Torcs environment
     env = TorcsEnv(vision=vision, throttle=True, gear_change=False)
 
+    episodes_rewards = []
     #gear_p = 0.19
 
     #Now load the weight
@@ -90,15 +91,15 @@ def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
         s_t = np.hstack((ob.angle, ob.track, ob.trackPos, ob.speedX, ob.speedY, ob.speedZ, env.wanted_speed))
      
         total_reward = 0.
+        loss = 0.
         for j in range(max_steps):
-            loss = 0 
             epsilon -= 1.0 / EXPLORE
             a_t = np.zeros([1,action_dim])
             noise_t = np.zeros([1,action_dim])
             
             a_t_original = actor.model.predict(s_t.reshape(1, s_t.shape[0]))
             noise_t[0][0] = train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][0],  0.0 , 0.60, 0.10)
-            noise_t[0][1] = train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][1],  0.6 , 1.00, 0.10)
+            noise_t[0][1] = train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][1],  0.7 , 0.80, 0.10)
             noise_t[0][2] = train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][2], -0.1 , 1.00, 0.05)
 
             #for x in range(3,action_dim):
@@ -177,6 +178,8 @@ def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
             step += 1
             if done:
                 break
+        
+        episodes_rewards.append([i, total_reward, loss, j])
 
         if np.mod(i, 3) == 0:
             if (train_indicator):
@@ -188,9 +191,9 @@ def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
                 critic.model.save_weights("criticmodel.h5", overwrite=True)
                 with open("criticmodel.json", "w") as outfile:
                     json.dump(critic.model.to_json(), outfile)
-        if np.mod(i, 5000) == 0:
+        if np.mod(i, 200) == 0:
             if (train_indicator):
-                print("Now we save model")
+                print("Now we save the intermediate model")
                 actor.model.save_weights("actormodel.%d.h5"%i, overwrite=True)
                 with open("actormodel.%d.json"%i, "w") as outfile:
                     json.dump(actor.model.to_json(), outfile)
@@ -202,9 +205,16 @@ def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
         summary.value.add(tag='episode_reward', simple_value=total_reward)
         summary_writer.add_summary(summary, i)
         summary_writer.flush()
+        summary = tf.Summary()
+        summary.value.add(tag='loss', simple_value=loss)
+        summary_writer.add_summary(summary, i)
+        summary_writer.flush()
         print("TOTAL REWARD @ " + str(i) +"-th Episode  : Reward " + str(total_reward) + " Steps:%d"%j)
         print("Total Step: " + str(step))
         print("")
+
+    with open("rewards.json", "w") as outfile:
+        json.dump(episodes_rewards, outfile)
 
     env.end()  # This is for shutting down TORCS
     print("Finish.")
