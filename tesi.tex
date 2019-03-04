@@ -1,0 +1,351 @@
+% !TeX encoding = UTF-8
+% !TeX program = pdflatex
+% !TeX spellcheck = en_EN
+\documentclass[binding=0.6cm,Lau,oneside]{sapthesis} % LaM for a Laurea Magistrale
+\usepackage{microtype}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{ltablex}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{ltxtable}
+\usepackage{float}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{listings}
+\graphicspath{ {./images/} }
+
+\hypersetup{pdftitle={Deep Deterministic Policy Gradient for Regularity Rally in TORCS Simulator},pdfauthor={Alessio Ragno}}
+\title{Deep Deterministic Policy Gradient for Regularity Rally in TORCS Simulator}
+\author{Alessio Ragno}
+\IDnumber{1759198}
+\course{Ingegneria Informatica e Automatica}
+\courseorganizer{Facoltà di Ingegneria dell'Informazione, Informatica e Statistica}
+\AcademicYear{2018/2019}
+\copyyear{2019}
+\advisor{Prof. Roberto Capobianco}
+\authoremail{spideralessio97@gmail.com}
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+\definecolor{lightgray}{rgb}{0.9,0.9,0.9}
+
+\lstset{ %
+  backgroundcolor=\color{lightgray},   % choose the background color
+  basicstyle=\footnotesize,        % size of fonts used for the code
+  breaklines=true,                 % automatic line breaking only at whitespace
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{mygreen},    % comment style
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  keywordstyle=\color{blue},       % keyword style
+  stringstyle=\color{mymauve},     % string literal style
+  language=python,
+  numbers=left
+}
+
+\begin{document}
+
+\frontmatter
+\maketitle
+\dedication{Dedicato a\newline Donald Knuth}
+\begin{abstract}
+This thesis is a report for the Excellence Course Project developed during the degree’s last year. The Course has been held by prof. Roberto Capobianco and followed together with the student Dylan Savoia.
+\end{abstract}
+\tableofcontents
+\mainmatter
+\chapter*{Introduction}
+The aim of the project is to study an application of Deep Reinforcement Learning by training a sensor-based autonomous car to drive in a Regularity Rally, which is, a type of motor sport race with the purpose of driving in the minimum time at a specified average speed.\newline
+A side project has been developed by Dylan Savoia but focusing on Speed Racing.\newline
+Deep Reinforcement Learning is a branch of Artificial Intelligence that studies algorithms to teach an agent how to act in an environment. Some applications of this subject are robotics, advertising, business and chemistry.\newline
+For this project the environment chose is TORCS, an open source car simulator that can be controlled by Python APIs.\newline
+In order to achieve the goal Deep Deterministic Policy Gradient algorithm has been applied.\newline
+
+\chapter{TORCS}
+TORCS (The Open Racing Car Simulator) is an open-source 3D car racing simulator released for the first time in 1997 and developed by Bernhard Wymann (project leader), Christos Dimitrakakis (simulation, sound, AI) and Andrew Sumner (graphics, tracks).
+\section{Simulated Car Racing Championship}
+\label{SCR}
+Simulated Car Racing Championship is an international competition with the goal to design a pre-programmed driver that can compete on unknown tracks first alone and then against other autonomous drivers.\newline
+The drivers perceive the environment through a number of sensors that describe relevant features of the car surroundings (e.g., the track limits, the position of near-by obstacles), of the car state (the fuel level, the engine RPMs, the current gear, etc.), and the current game state (lap time, number of lap, etc.).\newline
+The competition software extends the original TORCS architecture by adding a client-server module, real time events simulation and an abstraction layer between the driver code and the race server\newline
+\begin{longtable}{p{0.15\textwidth}p{0.15\textwidth}p{0.6\textwidth}}
+\caption{Description of TORCS available sensors}\\
+\toprule
+\textbf{Name}          & \textbf{Range}            & \textbf{Description}    \\
+\midrule
+\endfirsthead
+\caption{Description of TORCS available sensors (continued)}\\
+\toprule
+\textbf{Name}          & \textbf{Range}            & \textbf{Description}    \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+angle         & $[-\pi, +\pi]$ (rad)  & Angle between the car direction and the direction of the track axis      \\
+curLapTime    & $[0, +\infty)$ (s)      & Time elapsed during current lap    \\
+damage        & $[0, +\infty)$ (point)  & Current damage of the car    \\
+distFromStart & $[0, +\infty)$ (m)      & Distance of the car from the start line along the track line             \\
+distRaced     & $[0, +\infty)$ (m)       & Distance covered by the car from the beginning of the race \\
+focus         & $[0, 200]$ (m)      & Vector of 5 range finder sensors: each sensor returns the distance between the track edge and the car within a range of 200 meters   \\
+fuel          & $[0, +\infty)$ (l)       & Current fuel level           \\
+gear          & ${-1, 0, 1, \dots\, 6}$ & Current gear: -1 is reverse, 0 is neutral and the gear from 1 to 6       \\
+lastLapTime   & $[0, +\infty)$ (s)       & Time to complete the last lap\\
+opponents     & $[0, 200]$ (m)      & Vector of 36 opponent sensors.     \\
+racePos       & ${1, 2, \dots\, N}$    & Position in the race with respect to other cars  \\
+rpm           & $[0, +\infty)$ (rpm)     & Number of rotation per minute of the car engine  \\
+speedX        & $(-\infty, +\infty)$ (km/h)   & Speed of the car along the longitudinal axis of the car.   \\
+speedY        & $(-\infty, +\infty)$ (km/h)   & Speed of the car along the transverse axis of the car\\
+speedZ        & $(-\infty, +\infty)$ (km/h)   & Speed of the car along the Z axis of the car     \\
+track         & $[0, 200]$ (m)      & Vector of 19 range finder sensors: each sensors returns the distance between the track edge and the car within a range of 200 meters \\
+trackPos      & $(-\infty, +\infty)$          & Distance between the car and the track axis      \\
+wheelSpinVel  & $[0, +\infty)$ (rad/s)  & Vector of 4 sensors representing the rotation speed of wheels \\
+z             & $(-\infty, +\infty)$ (m)      & Distance of the car mass center from the surface of the track along the Z axis \\
+\end{longtable}
+\begin{longtable}{p{0.15\textwidth}p{0.15\textwidth}p{0.6\textwidth}}
+\caption{Description of TORCS available effectors}\\
+\toprule
+\textbf{Name}          & \textbf{Range}            & \textbf{Description}    \\
+\midrule
+\endfirsthead
+\caption{Description of TORCS available effectors (continued)}\\
+\toprule
+\textbf{Name}          & \textbf{Range}            & \textbf{Description}    \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+accel         & $[0, 1]$  & Virtual gas pedal       \\
+brake         & $[0, 1]$  & Virtual brake pedal \\
+clutch        & $[0, 1]$  & Virtual clutch pedal    \\
+gear    & ${1, 2, \dots\, 6}$      & Gear Value \\
+steering        & $[-1, 1]$  & Steering value    \\
+focus    & $[-90, 90]$     & Focus direction \\
+meta        & ${0, 1}$  & Ask competition to restart the race    \\
+\end{longtable}
+
+\chapter{Reinforcement Learning}
+Machine Learning is an application of artificial intelligence that studies algorithms and methods that can automatically learn and improve from experience without being explicitly programmed. \newline
+Typically Machine Learning methods are divided in three main categories: supervised learning, unsupervised learning and reinforcement learning. \newline
+The former’s goal is to learn a mapping from inputs x to outputs y, given a labeled set of input-output pairs called training set; the second focuses on finding “interesting patterns” in data; the latter, is the problem faced by an agent that must learn behavior through trial-and-error interactions with a dynamic environment. \newline
+In the standard Reinforcement-Learning (RL) model, also known as Markov Decision Process, an agent is connected to an environment with which it can interact. Every time an action is performed, the agent receives its current state in the environment with the gained reward, that can be positive or negative. \newline
+Formally, in Markov Decision Process a model is defined by:
+\begin{itemize}
+  \item a set of environment states $S$
+  \item a set of agent actions $A$
+  \item a set of scalar rewards $R$
+\end{itemize}
+Reinforcement Learning focuses to learn a behavior that maximizes the expected cumulative reward. \newline
+\begin{figure}[H]
+\caption{The agent-environment interaction in a Markv decision process}
+\centering
+\includegraphics[width=\textwidth]{markov}
+\end{figure}
+The cumulative reward at each time step  t can be written as:
+\begin{equation}
+G_t = R_{t+1} + R_{t+2} + \dots\ = \sum_{k=0}^{T}R_{t+k+1}
+\end{equation}
+The equation just defined is also called finite-horizon model, but it is not always appropriate: in many cases the precise length of the agent's life is not known in advance, so it is preferable to use the infinite-horizon discounted model, which can be defined in the following way:
+\begin{equation}
+G_t = \sum_{k=0}^{\infty}\gamma^k R_{t+k+1}
+\end{equation}
+The infinite-horizon discounted model takes the long-run reward of the agent into account, but rewards that are received in the future are geometrically discounted according to discount factor $\gamma$.
+The expected return given a certain state-action tuple is called value function:
+\begin{equation}
+V(s,a) = E[G_t \mid S_t=s, A_t = a]
+\end{equation}
+\section{Bellman Equation}
+The value learned at time $t$ strongly depends on the function learned at time $t-1$, this relation is described by the Bellman Equation:
+\begin{align}
+V(s, a) &= E[G_t \mid S_t=s, A_t = a] \\
+&= E[R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \dots \mid S_t=s, A_t = a] \\
+&= E[R_{t+1} + \gamma (R_{t+2} + \gamma R_{t+3} + \dots) \mid S_t=s, A_t = a] \\
+&= E[R_{t+1} + \gamma G_{t+1} \mid S_t=s, A_t = a] \\
+&= E[R_{t+1} + \gamma V(S_{t+1}) \mid S_t=s, A_t = a]
+\end{align}
+\section{Monte Carlo and TD Learning}
+A Reinforcement learning model could be learned in two ways:
+\begin{itemize}
+	\item Monte Carlo: Rewards are given at the end of the game and the agent learns on the cumulative reward.
+	\begin{equation}
+V( S_t ) = V( S_t ) + \alpha[ G_t - V(S_t) ]
+	\end{equation}
+	\item Temporal Difference (TD) Learning: Every step the agent gets the reward and model is updated.
+	\begin{equation}
+V( S_t ) = V( S_t ) + \alpha[ R_{t+1} + \gamma V(S_t+1)- V(S_t) ]
+	\end{equation}
+\end{itemize}
+With long episodes TD Learning is preferable because using only the cumulative reward could penalize good actions chosen in bad episodes and could reward bad actions taken in good episodes.
+\section{Approaches to solve a RL problem}
+There are three main approaches to solve a Reinforcement Learning problem: value based, policy based and model based. \newline
+From these three methods take place other ones, like actor critic, that are simply the mixture of the basic ones.
+\section{Value based}
+Value based class of algorithms aims to build a value function of states (or of state-action pairs) that estimate “how good” it is for the agent to be in a given state (or how good it is to perform a given action in a given state). The notion of “how good” here is defined in terms of future rewards that can be expected. One of the simplest and most popular value based algorithms is Q-learning (Watkins, 1989). \newline
+Basically Q-learning keeps a lookup table of values $Q(s,a)$ with one entry for every state-action pair that estimates the  expected cumulative reward. The value function Q can be defined in the following way:
+\begin{equation}
+Q( s,a ) = E( \sum_{k=0}^{\infty} \gamma^k r_t+k \mid s_t=s, a_t=a )
+\end{equation}
+Once the value function is known (or estimated) it is possible to apply argmax to chose the action that would give the highest reward in a specific state.
+\section{Policy based}
+In policy based Reinforcement Learning the goal is to optimize the policy function $\pi$ without using a value function. The policy takes in input the state and returns the action the agent should take:
+\begin{equation}
+a = \pi(s)
+\end{equation}
+It is possible to define a deterministic policy, which returns the same action at a given state or a stochastic one  that outputs a distribution probability over actions at a given state.
+\section{Model based}
+Model based algorithms goal is to build a model of the environment in order to take the right action at a given state. This approach is less general than the other two, in facts, for every environment it is necessary to build a specific model.
+\section{Actor-Critic}
+If the value function is learned in addition to the policy, we would get Actor-Critic algorithm:
+\begin{itemize}
+	\item Critic: updates value function parameters w and depending on the algorithm it could be action-value $Q(a\mid s,w)$ or state-value $V(s,w)$.
+	\item Actor: updates policy parameters $\theta$, in the direction suggested by the critic, $\pi(a\mid s,\theta)$.
+\end{itemize}
+This class of algorithms is very powerful and it is the one we will focus on, since it is implemented in Deep Deterministic Policy Gradient.
+\chapter{Reinforcement Learning Algorithms Improvements}
+This Chapter focuses on some improvements that could be used in Reinforcement Learning to have better performance and to handle some problems that could be easily encountered.
+\section{Deep Learning}
+The adoption of Neural Networks (NN) in Reinforcement Learning gave birth to the so called Deep Reinforcement Learning. Using NNs to model policies and value functions is easier to handle continuous domain states and actions. An important example of this approach is Deep Q-Learning.
+\subsection{Deep Q-Learning}
+Deep Q-Learning is an improvement of Q-Learning that uses Neural Networks instead of tables to estimate the value function. Q-Learning is very powerful but it can only be used with discrete actions and states while the deep version allows also continuous inputs.
+\subsection{Target Function}
+When using TD value based models, and in particular Deep Q-Learning, the value learned at time $t$ has a strong dependency on the function learned at time $t-1$ as pointed out by the Bellman Equation. \newline
+For Q-Learning, the Bellman Equation could be expressed in the following way:
+\begin{equation}
+NewQ( s,a ) = Q( s,a ) + alpha [ R(s,a) + \gamma maxQ(s',a') - Q(s,a) ]
+\end{equation}
+The new Q value for a state-action tuple is the current Q value plus the learning rate $\alpha$ times the reward for taking that action at that state added to the difference between the discounted  maximum expected future reward given the next state-action tuple and the current Q value. \newline
+What value based models try to do is minimize the error between real value function and the estimated one. The error is calculated by taking the difference between predicted Q target (maximum possible value from the next state) and the current Q value. When using Neural Networks, weights could be updated by multiplying the error and gradient of the Q value:
+\begin{equation}
+\Delta w = \alpha [ (R + \gamma max_a Q(s',a,w)) - Q(s,a,w)] \nabla_w Q( s,a,w )
+\end{equation}
+Since the Q target is not known, it needs to be estimated together with the Q value, but using the same same weights for estimating both makes a big correlation between the target and the error that leads to slow learning. \newline
+Instead of using the same weights, Google DeepMind introduced the notion of fixed Q-targets, which is, the use of a separate network with a fixed parameter for estimating the target that is updated every $\tau$ step by copying the same parameters of the Q Network.
+\section{Exploration-Exploitation trade off}
+Since RL tries to maximize the cumulative reward, it is frequent that the model reaches local maximum points, which is, in the most of the times, due to a weak knowledge of the environment.\newline
+To avoid the model to exploit the “closest” source of rewards, in the training phase, it is necessary to add some noise to the actions in order to allow the agent to explore the entire environment and reach a better maximum point.
+\section{Replay Buffer}
+Replay Buffer or Experience Replay is a technique that consists in keeping buffer that stores the tuples (s, a, r, s’) of the various steps. \newline
+At each step, the training routine picks a batch of examples from the buffer and uses them to update the model. This is quite useful because avoids forgetting previous experiences and reduces correlation between experiences.
+
+
+\chapter{Deep Deterministic Policy Gradient}
+\label{DDPG}
+In 2016 Google Deepmind Researches created an algorithm based on the actor critic approach to apply Reinforcement Learning in environments with continuous action domain and continuous action spaces: Deep Deterministic Policy Gradient (DDPG).\newline
+Described in the paper “Continuous control with Deep Reinforcement Learning”, DDPG is the mixture of Deep Q-Learning and Deterministic Policy Gradient.\newline
+The DDPG algorithm is quite simple and its pseudo-code is the following:
+\begin{algorithm}[H]
+    \caption{Deep Deterministic Policy Gradient}
+\begin{algorithmic}[0]
+\STATE Randomly initialize critic network $Q(s,a\mid\theta^Q)$ and actor $\mu(s\mid\theta^\mu)$ with weights $\theta^Q$ and $\theta^\mu$
+\STATE Initialize target network $Q'$ and $\mu'$ with weights $\theta^{Q'} \gets \theta^{Q}$, $\theta^{\mu'} \gets \theta^{\mu}$
+\STATE Initialize replay buffer $R$
+\FOR{episode = 1, M}
+    \STATE Initialize a random process $N$ for action exploration
+    \STATE Receive initial observation state $s_1$
+    \FOR{t = 1, T}
+        \STATE Select action $a_t=\mu(s_t \mid \theta^\mu) + N_t$ according to the current policy and exploration noise
+       	\STATE Execute action $a_t$ and observe reward $r_t$ and new state $s_t$
+        \STATE Store transition $(s_t, a_t, r_t, s_{t+1})$ in $R$
+        \STATE Sample a minibatch of $n$ transitions $(s_i, a_i, r_i, s_{i+1})$ from $R$
+        \STATE Set $y_i = r_i + \gamma Q'(s_{i+1}, \mu'(s_{i+1} \mid \theta^{\mu'})\mid \theta^{Q'})$
+        \STATE Update critic by minimizing the loss $L={1 \over n} \sum_i (y_i - Q(s_i, a_i \mid \theta^Q))^2$
+        \STATE Update the actor policy using the sampled policy gradient $$ \nabla_{\theta \mu}J \approx {1 \over n} \sum_i \nabla_a Q(s,a \mid \theta^Q) \mid_{s=s_i, a=\mu(s_i)} \nabla_{\theta \mu} \mu(s \mid \theta^\mu) \mid_{s_i}$$
+        \STATE Update the target networks: $$\theta^{Q'} \gets \tau \theta^{Q} + (1-\tau)\theta^{Q'}$$ $$\theta^{\mu'} \gets \tau \theta^{\mu} + (1-\tau)\theta^{\mu'}$$
+    \ENDFOR
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+\chapter{Implementation}
+What follows is an explanation of the Project Implementation with some pieces of code and instructions to allow the reader to replicate it.
+\section{Environment}
+As explained in Section \ref{SCR}, the environment is completely developed in the Simulated Car Racing Championship Software that is available at the following Git Hub repository with a readme file that explains how to compile and install it: \url{https://github.com/fmirus/torcs-1.3.7}.
+To interact with the simulator the developer Naoto Yoshida created a Python API that allows programmers to communicate with the environment with OpenAI-like methods. A detailed readme of the API is available at the following link: \url{https://github.com/ugo-nama-kun/gym_torcs}.
+Here is a small piece of code that shows how gym torcs can be used to drive a TORCS car.
+
+\begin{lstlisting}
+from gym_torcs import TorcsEnv
+
+#### Generate a Torcs environment
+env = TorcsEnv(vision=False, throttle=True)
+
+# reset environment
+ob = env.reset()
+
+# choose an action [steering, throttle, brake]
+action = [0., 1., 0.]
+
+# single step
+ob, reward, done, _ = env.step(action)
+
+# shut down torcs
+env.end()
+\end{lstlisting}
+\section{DDPG in Tensorflow}
+Deep Deterministic Policy Gradient implementation has been coded in Python Tensorflow using the Keras high-level API. The code has not been written from scratch, but starting from an old implementation based on the old version of Keras that is now deprecated. The original project owned by Ben Lau can be found at the following link: \url{http://yanpanlau.github.io/2016/10/11/Torcs-Keras.html}
+\subsection{Critic Network}
+The Critic Network consists in a class that contains four methods.
+The constructor \_\_init\_\_ that initializes the parameters and instatiates the Critic Network and the Target Critic Network.
+\begin{lstlisting}
+class CriticNetwork(object):
+    def __init__(self, sess, state_size, action_size, BATCH_SIZE, TAU, LEARNING_RATE):
+        self.sess = sess
+        self.BATCH_SIZE = BATCH_SIZE
+        self.TAU = TAU
+        self.LEARNING_RATE = LEARNING_RATE
+        self.action_size = action_size
+        K.set_session(sess)
+        self.model, self.action, self.state = self.create_critic_network(state_size, action_size)  
+        self.target_model, self.target_action, self.target_state = self.create_critic_network(state_size, action_size)  
+        self.action_grads = tf.gradients(self.model.output, self.action)
+        self.sess.run(tf.initialize_all_variables())
+\end{lstlisting}
+The gradients method evaluates estimated value gradient on actions to train the Actor Network.
+\begin{lstlisting}[firstnumber=13]
+    def gradients(self, states, actions):
+        return self.sess.run(self.action_grads, feed_dict={
+            self.state: states,
+            self.action: actions
+        })[0]
+\end{lstlisting}
+target\_train that updates target network as explained in Section \ref{DDPG}
+\begin{lstlisting}[firstnumber=18]
+    def target_train(self):
+        critic_weights = self.model.get_weights()
+        critic_target_weights = self.target_model.get_weights()
+        for i in range(len(critic_weights)):
+            critic_target_weights[i] = self.TAU * critic_weights[i] + (1 - self.TAU)* critic_target_weights[i]
+        self.target_model.set_weights(critic_target_weights)
+\end{lstlisting}
+create\_critic\_network method builds the Critic Neural Network by concatenating the input layers (state and action) with two hidden layers made respectively of 300 and 600 neurons.
+\begin{lstlisting}[firstnumber=24]
+    def create_critic_network(self, state_size,action_dim):
+        print("Now we build the model")
+        S = Input(shape=[state_size])  
+        A = Input(shape=[action_dim],name='action2')   
+        w1 = Dense(HIDDEN1_UNITS, activation='relu')(S)
+        a1 = Dense(HIDDEN2_UNITS, activation='linear')(A) 
+        h1 = Dense(HIDDEN2_UNITS, activation='linear')(w1)
+        h2 = add([h1,a1])    
+        h3 = Dense(HIDDEN2_UNITS, activation='relu')(h2)
+        V = Dense(action_dim,activation='linear')(h3)   
+        model = Model(inputs=[S,A],outputs=V)
+        adam = Adam(lr=self.LEARNING_RATE)
+        model.compile(loss='mse', optimizer=adam)
+        return model, A, S 
+\end{lstlisting}
+
+
+
+
+
+
+
+\backmatter
+
+\cleardoublepage
+\phantomsection % Give this command only if hyperref is loaded
+\addcontentsline{toc}{chapter}{\bibname}
+% Here put the code for the bibliography. You can use BibTeX or
+% the BibLaTeX package or the simple environment thebibliography.
+\end{document}
