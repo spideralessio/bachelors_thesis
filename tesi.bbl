@@ -1,0 +1,24 @@
+\begin{thebibliography}{1}
+
+\bibitem{SCR}
+Daniele Loiacono, Luigi Cardamone, and Pier~Luca Lanzi.
+\newblock Simulated car racing championship: Competition software manual.
+\newblock {\em CoRR}, abs/1304.1672, 2013.
+
+\bibitem{MURPHY}
+Kevin~P. Murphy.
+\newblock {\em Machine learning : a probabilistic perspective}.
+\newblock MIT Press, Cambridge, Mass. [u.a.], 2013.
+
+\bibitem{RLSURVEY}
+Leslie~Pack Kaelbling, Michael~L. Littman, and Andrew~W. Moore.
+\newblock Reinforcement learning: {A} survey.
+\newblock {\em CoRR}, cs.AI/9605103, 1996.
+
+\bibitem{DDPG}
+Timothy~P. Lillicrap, Jonathan~J. Hunt, Alexander Pritzel, Nicolas Heess, Tom
+  Erez, Yuval Tassa, David Silver, and Daan Wierstra.
+\newblock Continuous control with deep reinforcement learning.
+\newblock {\em CoRR}, abs/1509.02971, 2015.
+
+\end{thebibliography}

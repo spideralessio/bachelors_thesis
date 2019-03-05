@@ -1,0 +1,30 @@
+\BOOKMARK [0][-]{chapter.1}{Introduction}{}% 1
+\BOOKMARK [0][-]{chapter.2}{TORCS}{}% 2
+\BOOKMARK [1][-]{section.2.1}{Simulated Car Racing Championship}{chapter.2}% 3
+\BOOKMARK [0][-]{chapter.3}{Reinforcement Learning}{}% 4
+\BOOKMARK [1][-]{section.3.1}{Bellman Equation}{chapter.3}% 5
+\BOOKMARK [1][-]{section.3.2}{Monte Carlo and TD Learning}{chapter.3}% 6
+\BOOKMARK [1][-]{section.3.3}{Approaches to solve a RL problem}{chapter.3}% 7
+\BOOKMARK [1][-]{section.3.4}{Value based}{chapter.3}% 8
+\BOOKMARK [1][-]{section.3.5}{Policy based}{chapter.3}% 9
+\BOOKMARK [1][-]{section.3.6}{Model based}{chapter.3}% 10
+\BOOKMARK [1][-]{section.3.7}{Actor-Critic}{chapter.3}% 11
+\BOOKMARK [0][-]{chapter.4}{Reinforcement Learning Algorithms Improvements}{}% 12
+\BOOKMARK [1][-]{section.4.1}{Deep Learning}{chapter.4}% 13
+\BOOKMARK [2][-]{subsection.4.1.1}{Deep Q-Learning}{section.4.1}% 14
+\BOOKMARK [2][-]{subsection.4.1.2}{Target Function}{section.4.1}% 15
+\BOOKMARK [1][-]{section.4.2}{Exploration-Exploitation trade off}{chapter.4}% 16
+\BOOKMARK [1][-]{section.4.3}{Replay Buffer}{chapter.4}% 17
+\BOOKMARK [0][-]{chapter.5}{Deep Deterministic Policy Gradient}{}% 18
+\BOOKMARK [0][-]{chapter.6}{Implementation}{}% 19
+\BOOKMARK [1][-]{section.6.1}{Environment}{chapter.6}% 20
+\BOOKMARK [1][-]{section.6.2}{DDPG in Tensorflow}{chapter.6}% 21
+\BOOKMARK [2][-]{subsection.6.2.1}{Critic Network}{section.6.2}% 22
+\BOOKMARK [1][-]{section.6.3}{Actor Network}{chapter.6}% 23
+\BOOKMARK [1][-]{section.6.4}{Model Update}{chapter.6}% 24
+\BOOKMARK [1][-]{section.6.5}{Ornstein\205Uhlenbeck Noise}{chapter.6}% 25
+\BOOKMARK [2][-]{subsection.6.5.1}{Stochastic Brake}{section.6.5}% 26
+\BOOKMARK [1][-]{section.6.6}{Reward Shaping}{chapter.6}% 27
+\BOOKMARK [0][-]{chapter.7}{Training and Evaluation}{}% 28
+\BOOKMARK [0][-]{chapter.8}{Conclusions}{}% 29
+\BOOKMARK [0][-]{section*.3}{Bibliography}{}% 30
