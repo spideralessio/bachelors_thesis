@@ -26,20 +26,20 @@ def softmax(x):
 def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
     BUFFER_SIZE = 100000
     BATCH_SIZE = 32
-    GAMMA = 0.99
+    GAMMA = 0.80
     TAU = 0.001     #Target Network HyperParameters
     LRA = 0.0001    #Learning rate for Actor
     LRC = 0.001     #Lerning rate for Critic
 
-    action_dim = 3  #Steering/Acceleration/Brake
-    state_dim = 25 #of sensors input + wanted_speed
+    action_dim = 2  #Steering/Acceleration/Brake
+    state_dim = 25 -2 #of sensors input + wanted_speed
 
     np.random.seed(1337)
 
     vision = False
 
     EXPLORE = 100000.
-    episode_count = 5000
+    episode_count = 10000
     max_steps = 100000
     reward = 0
     done = False
@@ -88,8 +88,8 @@ def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
         env.avg_speed = 0
         #gear = 1
         #gear_p += 0.001
-        s_t = np.hstack((ob.angle, ob.track, ob.trackPos, ob.speedX, ob.speedY, ob.speedZ, env.wanted_speed))
-     
+        s_t = np.hstack((ob.angle, ob.track, ob.trackPos, ob.speedX, env.wanted_speed))
+        
         total_reward = 0.
         loss = 0.
         for j in range(max_steps):
@@ -100,7 +100,7 @@ def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
             a_t_original = actor.model.predict(s_t.reshape(1, s_t.shape[0]))
             noise_t[0][0] = train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][0],  0.0 , 0.60, 0.10)
             noise_t[0][1] = train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][1],  0.7 , 0.80, 0.10)
-            noise_t[0][2] = train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][2], -0.1 , 1.00, 0.05)
+            #noise_t[0][2] = train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][2], -0.1 , 1.00, 0.05)
 
             #for x in range(3,action_dim):
             #    noise_t[0][x] = 0#train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][1],  0.5, 0.60, 0.10)
@@ -108,7 +108,7 @@ def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
             #The following code do the stochastic brake
             if random.random() <= 0.1 and train_indicator:
                 print("********Now we apply the brake***********")
-                noise_t[0][2] = train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][1],  0.1, 1.00, 0.10)
+                noise_t[0][1] = train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][1],  -0.1, 1.00, 0.10)
             
             for x in range(action_dim):
                 a_t[0][x] = a_t_original[0][x] + noise_t[0][x]
@@ -134,16 +134,16 @@ def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
             #a_t[0] = a_t[0][:3] + sigmoid(a_t[0][3:])
             #a_t = np.array(a_t)
             print("AVG Speed", env.avg_speed, "WANTED Speed", env.wanted_speed, "Speed", ob.speedX*300)
-            #steering = a_t[0][0]
-            #acceleration = a_t[0][1]
-            #brake = a_t[0][2]
+            steering = a_t[0][0]
+            acceleration = a_t[0][1] if a_t[0][1] >= 0 else 0.
+            brake = abs(a_t[0][1]) if a_t[0][1] < 0 else 0.
             #gear = gear + gear_change
             #if gear > 6: gear = 6
             #if gear < -1: gear = -1
-            #performed_action = [steering, acceleration, brake, gear]
-            ob, r_t, done, info = env.step(a_t[0])
+            performed_action = [steering, acceleration, brake]
+            ob, r_t, done, info = env.step(performed_action)
 
-            s_t1 = np.hstack((ob.angle, ob.track, ob.trackPos, ob.speedX, ob.speedY, ob.speedZ, env.wanted_speed))
+            s_t1 = np.hstack((ob.angle, ob.track, ob.trackPos, ob.speedX, env.wanted_speed))
             buff.add(s_t, a_t[0], r_t, s_t1, done)      #Add replay buffer
             
             #Do the batch update
