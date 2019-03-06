@@ -21,10 +21,10 @@
 \contentsline {section}{\numberline {6.2}DDPG in Tensorflow}{14}{section.6.2}
 \contentsline {subsection}{\numberline {6.2.1}Critic Network}{14}{subsection.6.2.1}
 \contentsline {section}{\numberline {6.3}Actor Network}{15}{section.6.3}
-\contentsline {section}{\numberline {6.4}Model Update}{16}{section.6.4}
-\contentsline {section}{\numberline {6.5}Ornstein\IeC {\textendash }Uhlenbeck Noise}{17}{section.6.5}
-\contentsline {subsection}{\numberline {6.5.1}Stochastic Brake}{18}{subsection.6.5.1}
-\contentsline {section}{\numberline {6.6}Reward Shaping}{18}{section.6.6}
-\contentsline {chapter}{\numberline {7}Training and Evaluation}{19}{chapter.7}
-\contentsline {chapter}{\numberline {8}Conclusions}{20}{chapter.8}
-\contentsline {chapter}{Bibliography}{21}{section*.4}
+\contentsline {section}{\numberline {6.4}Model Update}{17}{section.6.4}
+\contentsline {section}{\numberline {6.5}Ornstein\IeC {\textendash }Uhlenbeck Noise}{19}{section.6.5}
+\contentsline {subsection}{\numberline {6.5.1}Stochastic Brake}{19}{subsection.6.5.1}
+\contentsline {section}{\numberline {6.6}Reward Shaping}{19}{section.6.6}
+\contentsline {chapter}{\numberline {7}Training and Evaluation}{21}{chapter.7}
+\contentsline {chapter}{\numberline {8}Conclusions}{23}{chapter.8}
+\contentsline {chapter}{Bibliography}{24}{section*.7}

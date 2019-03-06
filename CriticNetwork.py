@@ -37,15 +37,16 @@ class CriticNetwork(object):
 
     def create_critic_network(self, state_size,action_dim):
         print("Now we build the model")
-        S = Input(shape=[state_size])  
-        A = Input(shape=[action_dim],name='action2')   
-        w1 = Dense(HIDDEN1_UNITS, activation='relu')(S)
-        a1 = Dense(HIDDEN2_UNITS, activation='linear')(A) 
-        h1 = Dense(HIDDEN2_UNITS, activation='linear')(w1)
-        h2 = add([h1,a1])    
-        h3 = Dense(HIDDEN2_UNITS, activation='relu')(h2)
-        V = Dense(action_dim,activation='linear')(h3)   
-        model = Model(inputs=[S,A],outputs=V)
-        adam = Adam(lr=self.LEARNING_RATE)
-        model.compile(loss='mse', optimizer=adam)
-        return model, A, S 
+        with tf.name_scope('CriticNetwork') as scope:
+            S = Input(shape=[state_size], name='State')  
+            A = Input(shape=[action_dim], name='Action')   
+            w1 = Dense(HIDDEN1_UNITS, activation='relu', name='DenseLayerS0')(S)
+            a1 = Dense(HIDDEN2_UNITS, activation='linear', name='DenseLayerA')(A) 
+            h1 = Dense(HIDDEN2_UNITS, activation='linear', name='DenseLayerS1')(w1)
+            h2 = add([h1,a1], name='DenseLayerAS0')    
+            h3 = Dense(HIDDEN2_UNITS, activation='relu', name='DenseLayerAS1')(h2)
+            V = Dense(action_dim,activation='linear', name='Value')(h3)   
+            model = Model(inputs=[S,A],outputs=V)
+            adam = Adam(lr=self.LEARNING_RATE)
+            model.compile(loss='mse', optimizer=adam)
+            return model, A, S 

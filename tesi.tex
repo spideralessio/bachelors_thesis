@@ -16,6 +16,8 @@
 \usepackage{algorithmic}
 \usepackage{listings}
 \usepackage{setspace}
+\usepackage{caption}
+\usepackage{subcaption}
 \graphicspath{ {./images/} }
 
 \setlength{\parindent}{0em}
@@ -371,9 +373,14 @@ create\_critic\_network method builds the Critic Neural Network by concatenating
         model.compile(loss='mse', optimizer=adam)
         return model, A, S 
 \end{lstlisting}
-
+\begin{figure}[H]
+\caption{Tensorboard graph of Critic Network}
+\centering
+\includegraphics[width=0.7\textwidth]{critic}
+\end{figure}
 \section{Actor Network}
 Actor Network realization is quite similar except for training method and the neural network initialization routine. In facts, the neural network input is just the agent state and the output is composed of the three commands the agent every step controls. The full implementation is provided in the next piece of code.
+\clearpage
 \begin{lstlisting}
 class ActorNetwork(object):
     def __init__(self, sess, state_size, action_size, BATCH_SIZE, TAU, LEARNING_RATE):
@@ -415,8 +422,13 @@ class ActorNetwork(object):
         model = Model(inputs=S, outputs=V)
         return model, model.trainable_weights, S
 \end{lstlisting}
+\clearpage
 Since acceleration and brake take values between 0 and 1 and steering value is between -1 and 1, in create\_actor\_network method, the Critic Network output layer parameters are initialized with a normal distribution scaled of a 1e-4 factor.
-
+\begin{figure}[H]
+\caption{Tensorboard graph of Actor Network}
+\centering
+\includegraphics[width=0.7\textwidth]{actor}
+\end{figure}
 \section{Model Update}
 The main work is done by the updated routine that is run right after an action is taken every step.
 At first the environment is reset and the first state is stored observed.
@@ -532,14 +544,44 @@ r(s) = \begin{cases} 200, & \mbox{if car out of track or backward} \\ (cos\theta
 Where $\theta$ is the angle between car axis and track, $v$ is the car speed, $v^*$ is the specified speed and $d$ is the normalized distance between the car and the track edge.
 
 \chapter{Training and Evaluation}
-Training phase has been run making ---- steps. Initially the car moved randomly, which often led it out of track. After about --- steps of training the reward started increasing since car learned how to stay in the middle of the track, but it still was not at the maximum. Reward kept increasing until the agent understood how to maintain a certain speed by pushing the throttle pedal and the brake one.
+Training phase has been run making 4000 episodes. Car started moved randomly, which often led it out of track and low reward. After about 600 episodes reward started increasing since car learned how to stay in the middle of the track, but it still was not at the maximum. Reward kept increasing until the agent understood how to maintain a certain average speed by pushing the throttle pedal and the brake one.
 
-The agent was trained only on track -----, which is a medium level one: it has both curves and straights parts. 
+\begin{figure}[H]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{reward}
+  \caption{Plot with linear y scale}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{rewardlog}
+  \caption{Plot with logarithmic y scale}
+\end{subfigure}
+\caption{Total Reward Plots}
+\label{fig:test}
+\end{figure}
 
-The agent has been tested on two different tracks:
-\begin{itemize}
-  \item ----- is mainly composed of straight parts. In this track the agent went very well. It 
-\end{itemize}
+Due to OU process, reward results noised but it is clear how the episode reward kept growing up during the reward phase. Reward plot noise could also due to the chosen reward shaping, in fact in long episodes the agent accumulated high rewards since it stood in track for but in short episodes negative reward had an higher impact on total reward. This problem has been hilighted by Gal Dalal et al. in Safe Exploration in Continuous Action Spaces \cite{SAFEEXPLORATION} but it extremely depends on the environment.
+
+Agent has been trained only on a track (Corkscrew), while testing phase has been done on four different tracks. Test Results are shown in the following table.
+
+\begin{longtable}{p{0.3\textwidth}p{0.3\textwidth}p{0.3\textwidth}}
+\caption{Test Results}\\
+\toprule
+\textbf{Track}          &  \textbf{Mean Reward}   & \textbf{Episodes}   \\
+\midrule
+\endfirsthead
+\caption{Description of TORCS available effectors (continued)}\\
+\toprule
+\textbf{Track}          &  \textbf{Mean Reward}   & \textbf{Episodes}   \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+Corkscrew    & 27770  & 20    \\
+\end{longtable}
+
 \chapter{Conclusions}
 This project was intended to teach a car how to keep the track and maintain a certain speed. Reinforcement Learning, and in particular, Deep Deterministic Policy Gradient demonstrated to be powerful algorithms to train agents in continuous state-action space. 
  

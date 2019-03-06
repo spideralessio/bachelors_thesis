@@ -26,7 +26,7 @@ def softmax(x):
 def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
     BUFFER_SIZE = 100000
     BATCH_SIZE = 32
-    GAMMA = 0.80
+    GAMMA = 0.99
     TAU = 0.001     #Target Network HyperParameters
     LRA = 0.0001    #Learning rate for Actor
     LRC = 0.001     #Lerning rate for Critic
@@ -50,8 +50,9 @@ def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
     #Tensorflow GPU optimization
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
-    summary_writer = tf.summary.FileWriter("output")
+    
     sess = tf.Session(config=config)
+
     from tensorflow.keras import backend as K
     K.set_session(sess)
 
@@ -75,6 +76,7 @@ def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
         print("Weight load successfully")
     except:
         print("Cannot find the weight")
+    summary_writer = tf.summary.FileWriter("output", sess.graph)
 
     print("TORCS Experiment Start.")
     for i in range(episode_count):
@@ -99,7 +101,7 @@ def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
             
             a_t_original = actor.model.predict(s_t.reshape(1, s_t.shape[0]))
             noise_t[0][0] = train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][0],  0.0 , 0.60, 0.10)
-            noise_t[0][1] = train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][1],  0.7 , 0.80, 0.10)
+            noise_t[0][1] = train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][1],  0.7 , 1.00, 0.10)
             #noise_t[0][2] = train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][2], -0.1 , 1.00, 0.05)
 
             #for x in range(3,action_dim):
@@ -133,7 +135,7 @@ def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
             #a_t = a_t.tolistos.sys()
             #a_t[0] = a_t[0][:3] + sigmoid(a_t[0][3:])
             #a_t = np.array(a_t)
-            print("AVG Speed", env.avg_speed, "WANTED Speed", env.wanted_speed, "Speed", ob.speedX*300)
+            #print("AVG Speed", env.avg_speed, "WANTED Speed", env.wanted_speed, "Speed", ob.speedX*300)
             steering = a_t[0][0]
             acceleration = a_t[0][1] if a_t[0][1] >= 0 else 0.
             brake = abs(a_t[0][1]) if a_t[0][1] < 0 else 0.
@@ -174,12 +176,13 @@ def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
             total_reward += r_t
             s_t = s_t1
         
-            print("Episode", i, "Step", step, "Action", a_t[0], "Reward", r_t, "Loss", loss)
+            #print("Episode", i, "Step", step, "Action", a_t[0], "Reward", r_t, "Loss", loss)
             step += 1
             if done:
                 break
         
-        episodes_rewards.append([i, total_reward, loss, j])
+        episodes_rewards.append(total_reward)
+        print("mean_reward", np.array(episodes_rewards).mean())
 
         if np.mod(i, 3) == 0:
             if (train_indicator):

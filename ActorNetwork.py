@@ -41,14 +41,15 @@ class ActorNetwork(object):
 
     def create_actor_network(self, state_size,action_dim):
         print("Now we build the model")
-        S = Input(shape=[state_size])   
-        h0 = Dense(HIDDEN1_UNITS, activation='relu')(S)
-        h1 = Dense(HIDDEN2_UNITS, activation='relu')(h0)
-        Steering = Dense(1,activation='tanh',kernel_initializer=variance_scaling(scale=1e-4, distribution='normal'), bias_initializer=variance_scaling(scale=1e-4, distribution='normal'))(h1)#,init=lambda shape, name: normal(shape, scale=1e-4, name=name))(h1)  
-        Acceleration = Dense(1,activation='sigmoid', kernel_initializer=variance_scaling(scale=1e-4, distribution='normal'), bias_initializer=variance_scaling(scale=1e-4, distribution='normal'))(h1)#,init=lambda shape, name: normal(shape, scale=1e-4, name=name))(h1)   
-        Brake = Dense(1,activation='sigmoid', kernel_initializer=variance_scaling(scale=1e-4, distribution='normal'), bias_initializer=variance_scaling(scale=1e-4, distribution='normal'))(h1) 
-        #Gear = Dense(3,activation='softmax')(h1)
-        V = concatenate([Steering,Acceleration,Brake])          
-        model = Model(inputs=S, outputs=V)
-        return model, model.trainable_weights, S
+        with tf.name_scope('ActorNetwork') as scope:
+            S = Input(shape=[state_size], name='state')   
+            h0 = Dense(HIDDEN1_UNITS, activation='relu', name='DenseLayer0')(S)
+            h1 = Dense(HIDDEN2_UNITS, activation='relu', name='DenseLayer1')(h0)
+            Steering = Dense(1, name='Steering',activation='tanh',kernel_initializer=variance_scaling(scale=1e-4, distribution='normal'), bias_initializer=variance_scaling(scale=1e-4, distribution='normal'))(h1)#,init=lambda shape, name: normal(shape, scale=1e-4, name=name))(h1)  
+            Acceleration = Dense(1, name='Acceleration',activation='tanh', kernel_initializer=variance_scaling(scale=1e-4, distribution='normal'), bias_initializer=variance_scaling(scale=1e-4, distribution='normal'))(h1)#,init=lambda shape, name: normal(shape, scale=1e-4, name=name))(h1)   
+            #Brake = Dense(1,activation='sigmoid', kernel_initializer=variance_scaling(scale=1e-4, distribution='normal'), bias_initializer=variance_scaling(scale=1e-4, distribution='normal'))(h1) 
+            #Gear = Dense(3,activation='softmax')(h1)
+            V = concatenate([Steering,Acceleration], name='Action')#,Brake])          
+            model = Model(inputs=S, outputs=V)
+            return model, model.trainable_weights, S
 
