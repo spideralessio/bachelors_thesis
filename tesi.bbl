@@ -15,6 +15,11 @@ Leslie~Pack Kaelbling, Michael~L. Littman, and Andrew~W. Moore.
 \newblock Reinforcement learning: {A} survey.
 \newblock {\em CoRR}, cs.AI/9605103, 1996.
 
+\bibitem{SUTTONBARTO}
+Richard~S. Sutton and Andrew~G. Barto.
+\newblock {\em Reinforcement Learning: An Introduction}.
+\newblock The MIT Press, second edition, 2018.
+
 \bibitem{DDPG}
 Timothy~P. Lillicrap, Jonathan~J. Hunt, Alexander Pritzel, Nicolas Heess, Tom
   Erez, Yuval Tassa, David Silver, and Daan Wierstra.
