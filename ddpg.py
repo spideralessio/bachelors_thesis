@@ -135,7 +135,7 @@ def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
             #a_t = a_t.tolistos.sys()
             #a_t[0] = a_t[0][:3] + sigmoid(a_t[0][3:])
             #a_t = np.array(a_t)
-            #print("AVG Speed", env.avg_speed, "WANTED Speed", env.wanted_speed, "Speed", ob.speedX*300)
+            print("AVG Speed", env.avg_speed, "WANTED Speed", env.wanted_speed, "Speed", ob.speedX*300)
             steering = a_t[0][0]
             acceleration = a_t[0][1] if a_t[0][1] >= 0 else 0.
             brake = abs(a_t[0][1]) if a_t[0][1] < 0 else 0.
