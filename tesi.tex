@@ -594,7 +594,7 @@ In code implementation, a penalization when agent speed is too small has been ad
   \caption{Plot of reward function for $trackPos = 1$ and $v^*=110$}
   \label{rewardshapingplot1}
 \end{figure}
-Figures \ref{rewardshapingplot0}, \ref{rewardshapingplot05} and \ref{rewardshapingplot1} show the plot of reward function for three values of $trackPos$ varying the speed and the angle. Since $trackPos$ is taken into account only with its absolute value, for negative values of $trackPos$ reward function is the same of the one for positive values. For $trackPos = 0$ the car is in the middle of the lane and the reward increases.
+Figures \ref{rewardshapingplot0}, \ref{rewardshapingplot05} and \ref{rewardshapingplot1} show the plot of reward function for three values of $trackPos$ varying the speed and the angle. Since $trackPos$ is taken into account only with its absolute value, for negative values of $trackPos$ reward function is the same of the one for positive values. For small values of $trackPos$ the car gets close to the middle of the lane and the reward increases. Reward maximum value is $5$ and it can be obtained with $trackPos=0$, $\theta=0$ and $v=v^*$.
 
 
 
