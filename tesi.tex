@@ -544,7 +544,7 @@ brake    & 1.00   & 0.10  & 0.10    \\
 \end{longtable}
 \section{Reward Shaping}
 Since the aim of this project is to teach the agent to drive and to maintain a specified speed, the reward should be maximum when the speed is exactly the selected one, the angle between car axis and track is close to zero and the car position is approximately at the center of the track.
-The implemented reward function in equation \ref{function}.
+Equation \ref{reward_function} is the mathematical formula of the implemented reward.
 \begin{equation}
 r(s) = \begin{cases} -50, & \mbox{if } cos \theta < 0  \vee \mid d \mid > 1 \\ 5(cos\theta - \mid sin\theta \mid - \mid d \mid - {\mid v - v^*\mid \over v^*}), & \mbox{else} \end{cases}
 \label{reward_function}

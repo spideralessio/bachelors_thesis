@@ -25,6 +25,6 @@
 \contentsline {section}{\numberline {6.5}Ornstein\IeC {\textendash }Uhlenbeck Noise}{19}{section.6.5}
 \contentsline {subsection}{\numberline {6.5.1}Stochastic Brake}{19}{subsection.6.5.1}
 \contentsline {section}{\numberline {6.6}Reward Shaping}{19}{section.6.6}
-\contentsline {chapter}{\numberline {7}Training and Evaluation}{22}{chapter.7}
-\contentsline {chapter}{\numberline {8}Conclusions}{25}{chapter.8}
-\contentsline {chapter}{Bibliography}{26}{section*.14}
+\contentsline {chapter}{\numberline {7}Training and Evaluation}{23}{chapter.7}
+\contentsline {chapter}{\numberline {8}Conclusions}{26}{chapter.8}
+\contentsline {chapter}{Bibliography}{27}{section*.14}
