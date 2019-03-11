@@ -1,5 +1,10 @@
 \begin{thebibliography}{1}
 
+\bibitem{TROPSHA}
+Mariya Popova, Olexandr Isayev, and Alexander Tropsha.
+\newblock Deep reinforcement learning for de-novo drug design.
+\newblock {\em CoRR}, abs/1711.10907, 2017.
+
 \bibitem{SCR}
 Daniele Loiacono, Luigi Cardamone, and Pier~Luca Lanzi.
 \newblock Simulated car racing championship: Competition software manual.

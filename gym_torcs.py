@@ -135,9 +135,8 @@ class TorcsEnv:
         rpm = np.array(obs['rpm'])
         angle = np.array(obs['angle'])
 
-
         #reward = 0.01*(-sp**2 + sp*2*self.wanted_speed)*(np.cos(angle) - np.abs(np.sin(angle)) -np.abs(trackPos))# - np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos'])
-        reward = (np.cos(angle) - np.abs(np.sin(angle)) -  np.abs(trackPos) - np.abs(sp-self.wanted_speed)/self.wanted_speed)*20
+        reward = (np.cos(angle) - np.abs(np.sin(angle)) -  np.abs(trackPos) - np.abs(sp-self.wanted_speed)/self.wanted_speed)*5 
         # collision detection
         #if obs['damage'] - obs_pre['damage'] > 0:
         #    reward = progress - 5
@@ -152,7 +151,7 @@ class TorcsEnv:
         if sp < self.termination_limit_progress:
             if self.terminal_judge_start < self.time_step: # Episode terminates if the progress of agent is small
                 print("No progress")
-                reward = -200
+                reward = -50
                 episode_terminate = True
                 client.R.d['meta'] = True
         else:
@@ -161,13 +160,13 @@ class TorcsEnv:
         # Termination judgement #########################
         #episode_terminate = False
         if (abs(track.any()) > 1 or abs(trackPos) > 1):  # Episode is terminated if the car is out of track
-            reward = -200
+            reward = -50
             episode_terminate = True
             client.R.d['meta'] = True
 
 
         if np.cos(angle) < 0: # Episode is terminated if the agent runs backward
-            reward = 200
+            reward = -50
             episode_terminate = True
             client.R.d['meta'] = True
 

@@ -16,26 +16,26 @@
 \gdef\HyperFirstAtBeginDocument#1{#1}
 \providecommand\HyField@AuxAddToFields[1]{}
 \providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{TROPSHA}
 \@writefile{toc}{\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
+\citation{SCR}
 \@writefile{toc}{\contentsline {chapter}{\numberline {2}TORCS}{2}{chapter.2}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{lof}{\contentsline {figure}{\numberline {2.1}{\ignorespaces Classic View of a TORCS car in a race\relax }}{2}{figure.caption.2}}
-\citation{SCR}
+\@writefile{toc}{\contentsline {section}{\numberline {2.1}Simulated Car Racing Championship}{2}{section.2.1}}
+\newlabel{SCR}{{2.1}{2}{Simulated Car Racing Championship}{section.2.1}{}}
 \gdef \LT@i {\LT@entry 
     {1}{71.39758pt}\LT@entry 
     {1}{111.0pt}\LT@entry 
     {1}{210.0pt}}
-\@writefile{toc}{\contentsline {section}{\numberline {2.1}Simulated Car Racing Championship}{3}{section.2.1}}
-\newlabel{SCR}{{2.1}{3}{Simulated Car Racing Championship}{section.2.1}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {2.1}{\ignorespaces Description of TORCS available sensors\relax }}{3}{table.2.1}}
 \gdef \LT@ii {\LT@entry 
     {1}{71.39758pt}\LT@entry 
     {1}{111.0pt}\LT@entry 
     {1}{210.0pt}}
-\@writefile{lot}{\contentsline {table}{\numberline {2.1}{\ignorespaces Description of TORCS available sensors (continued)\relax }}{4}{table.2.1}}
 \@writefile{lot}{\contentsline {table}{\numberline {2.2}{\ignorespaces Description of TORCS available effectors\relax }}{4}{table.2.2}}
 \citation{MURPHY}
 \citation{RLSURVEY}
@@ -45,10 +45,15 @@
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces The agent-environment interaction in a Markov decision process \cite  {SUTTONBARTO}\relax }}{6}{figure.caption.3}}
+\newlabel{finitehorizon}{{3.1}{6}{Reinforcement Learning}{equation.3.0.1}{}}
+\newlabel{infinitehorizon}{{3.2}{6}{Reinforcement Learning}{equation.3.0.2}{}}
+\newlabel{value}{{3.3}{6}{Reinforcement Learning}{equation.3.0.3}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {3.1}Bellman Equation}{6}{section.3.1}}
+\newlabel{bellman}{{3.8}{6}{Bellman Equation}{equation.3.1.8}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {3.2}Monte Carlo and TD Learning}{7}{section.3.2}}
 \@writefile{toc}{\contentsline {section}{\numberline {3.3}Approaches to solve a RL problem}{7}{section.3.3}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3.1}Value based}{7}{subsection.3.3.1}}
+\newlabel{qfunction}{{3.11}{7}{Value based}{equation.3.3.11}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3.2}Policy based}{7}{subsection.3.3.2}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3.3}Model based}{8}{subsection.3.3.3}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3.4}Actor-Critic}{8}{subsection.3.3.4}}
@@ -58,6 +63,7 @@
 \@writefile{toc}{\contentsline {section}{\numberline {4.1}Deep Learning}{9}{section.4.1}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1.1}Deep Q-Learning}{9}{subsection.4.1.1}}
 \@writefile{toc}{\contentsline {section}{\numberline {4.2}Target Function}{9}{section.4.2}}
+\newlabel{bellmanqlearning}{{4.1}{9}{Target Function}{equation.4.2.1}{}}
 \citation{SUTTONBARTO}
 \@writefile{toc}{\contentsline {section}{\numberline {4.3}Exploration-Exploitation trade off}{10}{section.4.3}}
 \@writefile{toc}{\contentsline {section}{\numberline {4.4}Replay Buffer}{10}{section.4.4}}
@@ -74,7 +80,7 @@
 \@writefile{toc}{\contentsline {section}{\numberline {6.2}DDPG in Tensorflow}{14}{section.6.2}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.2.1}Critic Network}{14}{subsection.6.2.1}}
 \@writefile{lof}{\contentsline {figure}{\numberline {6.1}{\ignorespaces Tensorboard graph of Critic Network\relax }}{15}{figure.caption.4}}
-\@writefile{toc}{\contentsline {section}{\numberline {6.3}Actor Network}{15}{section.6.3}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.3}Actor Network}{16}{section.6.3}}
 \@writefile{lof}{\contentsline {figure}{\numberline {6.2}{\ignorespaces Tensorboard graph of Actor Network\relax }}{17}{figure.caption.5}}
 \@writefile{toc}{\contentsline {section}{\numberline {6.4}Model Update}{17}{section.6.4}}
 \gdef \LT@iii {\LT@entry 
@@ -92,27 +98,43 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.5.1}Stochastic Brake}{19}{subsection.6.5.1}}
 \@writefile{lot}{\contentsline {table}{\numberline {6.2}{\ignorespaces OU Noise parameters for TORCS effectors\relax }}{19}{table.6.2}}
 \@writefile{toc}{\contentsline {section}{\numberline {6.6}Reward Shaping}{19}{section.6.6}}
-\citation{SAFEEXPLORATION}
-\@writefile{toc}{\contentsline {chapter}{\numberline {7}Training and Evaluation}{21}{chapter.7}}
+\newlabel{reward_function}{{6.2}{19}{Reward Shaping}{equation.6.6.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.3}{\ignorespaces Plot of reward function for $trackPos = 1$ and $v^*=110$\relax }}{20}{figure.caption.6}}
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{rewardshapingplot0}{{6.3}{20}{Plot of reward function for $trackPos = 1$ and $v^*=110$\relax }{figure.caption.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.4}{\ignorespaces Plot of reward function for $trackPos = 1$ and $v^*=110$\relax }}{21}{figure.caption.7}}
+\newlabel{rewardshapingplot05}{{6.4}{21}{Plot of reward function for $trackPos = 1$ and $v^*=110$\relax }{figure.caption.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.5}{\ignorespaces Plot of reward function for $trackPos = 1$ and $v^*=110$\relax }}{21}{figure.caption.8}}
+\newlabel{rewardshapingplot1}{{6.5}{21}{Plot of reward function for $trackPos = 1$ and $v^*=110$\relax }{figure.caption.8}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {7}Training and Evaluation}{22}{chapter.7}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{lof}{\contentsline {figure}{\numberline {7.1}{\ignorespaces Total Reward Plots\relax }}{21}{figure.caption.6}}
-\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{fig:test}{{7.1}{21}{Total Reward Plots\relax }{figure.caption.6}{}}
-\gdef \LT@v {\LT@entry 
-    {1}{130.80121pt}\LT@entry 
-    {1}{130.80121pt}\LT@entry 
-    {1}{130.80121pt}}
-\@writefile{lot}{\contentsline {table}{\numberline {7.1}{\ignorespaces OU Noise parameters for TORCS effectors\relax }}{22}{table.7.1}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {8}Conclusions}{23}{chapter.8}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7.1}{\ignorespaces Episode Reward's Plot\relax }}{22}{figure.caption.9}}
+\newlabel{rewardplot}{{7.1}{22}{Episode Reward's Plot\relax }{figure.caption.9}{}}
+\citation{SAFEEXPLORATION}
+\@writefile{lof}{\contentsline {figure}{\numberline {7.2}{\ignorespaces Car position sensors' plots\relax }}{23}{figure.caption.10}}
+\newlabel{mean_trackpos}{{7.2a}{23}{Mean trackPos plot\relax }{figure.caption.10}{}}
+\newlabel{sub@mean_trackpos}{{a}{23}{Mean trackPos plot\relax }{figure.caption.10}{}}
+\newlabel{mean_angle}{{7.2b}{23}{Mean angle plot\relax }{figure.caption.10}{}}
+\newlabel{sub@mean_angle}{{b}{23}{Mean angle plot\relax }{figure.caption.10}{}}
+\newlabel{mean_plots}{{7.2}{23}{Car position sensors' plots\relax }{figure.caption.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7.3}{\ignorespaces Mean average speed error\relax }}{23}{figure.caption.11}}
+\newlabel{mean_difference}{{7.3}{23}{Mean average speed error\relax }{figure.caption.11}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7.4}{\ignorespaces CG Speedway number 1 Circuit\relax }}{24}{figure.caption.12}}
+\newlabel{g-track-1}{{7.4}{24}{CG Speedway number 1 Circuit\relax }{figure.caption.12}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7.5}{\ignorespaces CG Speedway number 1 screenshot\relax }}{24}{figure.caption.13}}
+\newlabel{screenshot}{{7.5}{24}{CG Speedway number 1 screenshot\relax }{figure.caption.13}{}}
+\citation{SAFEEXPLORATION}
+\@writefile{toc}{\contentsline {chapter}{\numberline {8}Conclusions}{25}{chapter.8}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \bibdata{tesi}
-\bibcite{SCR}{1}
-\bibcite{MURPHY}{2}
-\bibcite{RLSURVEY}{3}
-\bibcite{SUTTONBARTO}{4}
-\bibcite{DDPG}{5}
-\bibcite{SAFEEXPLORATION}{6}
+\bibcite{TROPSHA}{1}
+\bibcite{SCR}{2}
+\bibcite{MURPHY}{3}
+\bibcite{RLSURVEY}{4}
+\bibcite{SUTTONBARTO}{5}
+\bibcite{DDPG}{6}
+\bibcite{SAFEEXPLORATION}{7}
 \bibstyle{unsrt}
-\@writefile{toc}{\contentsline {chapter}{Bibliography}{24}{section*.7}}
+\@writefile{toc}{\contentsline {chapter}{Bibliography}{26}{section*.14}}

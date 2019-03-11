@@ -1,19 +1,22 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
-wanted = 100
+wanted = 110
 
 def f(v, theta, trackPos):
-	#return (v - (10*np.abs(v-wanted)/wanted))
-	return (4*np.cos(theta) - np.abs(trackPos) - np.abs(v-wanted)/wanted)*20
+	res = 0.01*(-v**2 + v*2*wanted)*(np.cos(theta) - np.abs(np.sin(theta)) -np.abs(trackPos))# - np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos'])
+	res[np.cos(theta) < 0] = -200
+	return res
+	#return (4*np.cos(theta) - np.abs(trackPos) - np.abs(v-wanted)/wanted)*20
 def f1(v, theta, trackPos):
-	res =  (np.cos(theta) - np.abs(trackPos) - np.abs(np.sin(theta)) - np.abs(v-wanted)/wanted)*5 + 10
+	res =  (np.cos(theta) - np.abs(trackPos) - np.abs(np.sin(theta)) - np.abs(v-wanted)/wanted)*5
 	res[np.cos(theta) < 0] = -50
 	return res
 ds = [0., 0.5, 1.]
 
-v = np.linspace(0,300,100)
+v = np.linspace(-100,300,100)
 theta = np.linspace(0,2*np.pi,100)
+
 
 V, T = np.meshgrid(v, theta)
 
@@ -28,6 +31,8 @@ for i, d in enumerate(ds):
 	ax.set_ylabel('Angle')
 	ax.set_zlabel('Reward')
 	ax.contour3D(V, T, Z, 25)
+
+
 # fig = plt.figure()
 # for i, d in enumerate(ds):
 # 	Z = f1(V, T, d)

@@ -216,7 +216,7 @@ With long episodes TD Learning is preferable as using only the cumulative reward
 \section{Approaches to solve a RL problem}
 There are three main approaches to solve a RL problem: value based, policy based and model based. 
 
-Following these three methods take place othersare generated, such as actor critic.
+Following these three methods take place others are generated, such as actor critic.
 \subsection{Value based}
 Value based class of algorithms aims to build a value function of states (or of state-action pairs) that estimate “how good” it is for the agent to be in a given state (or how good it is to perform a given action in a given state). The notion of “how good” here is defined in terms of expected future rewards. One of the simplest and most popular value based algorithms is Q-learning (Watkins, 1989). 
 
@@ -257,7 +257,7 @@ NewQ( s,a ) = Q( s,a ) + \alpha [ R(s,a) + \gamma maxQ(s',a') - Q(s,a) ]
 \end{equation}
 The new Q value for a state-action tuple is the current Q value plus the learning rate $\alpha$ times the reward for taking that action at that state added to the difference between the discounted  maximum expected future reward given the next state-action tuple and the current Q value. 
 
-What value based models try to do is minimize the error between real value function and the estimated one. The error is calculated by taking the difference between predicted Q target (maximum possible value from the next state) and the current Q value. NN paramenters are updated by multiplying the error and gradient of the Q value:
+What value based models try to do is minimize the error between real value function and the estimated one. The error is calculated by taking the difference between predicted Q target (maximum possible value from the next state) and the current Q value. NN parameters are updated by multiplying the error and gradient of the Q value:
 \begin{equation}
 \Delta w = \alpha [ (R + \gamma max_a Q(s',a,w)) - Q(s,a,w)] \nabla_w Q( s,a,w )
 \end{equation}
@@ -546,10 +546,10 @@ brake    & 1.00   & 0.10  & 0.10    \\
 Since the aim of this project is to teach the agent to drive and to maintain a specified speed, the reward should be maximum when the speed is exactly the selected one, the angle between car axis and track is close to zero and the car position is approximately at the center of the track.
 The implemented reward function in equation \ref{function}.
 \begin{equation}
-r(s) = \begin{cases} -200, & \mbox{if } cos \theta < 0  \vee \mid d \mid > 1 \\ 20(cos\theta - \mid sin\theta \mid - \mid d \mid - {\mid v - v*\mid \over v*}) + 50, & \mbox{else} \end{cases}
+r(s) = \begin{cases} -50, & \mbox{if } cos \theta < 0  \vee \mid d \mid > 1 \\ 5(cos\theta - \mid sin\theta \mid - \mid d \mid - {\mid v - v^*\mid \over v^*}), & \mbox{else} \end{cases}
 \label{reward_function}
 \end{equation}
-Where $\theta$ is the angle between car axis and track, $v$ is the car speed, $v^*$ is the specified speed and $d$ is the value of trackPos sensor. The first case of reward function assigns a reward $-200$ if car gets off track or drives backward.
+Where $\theta$ is the angle between car axis and track, $v$ is the car speed, $v^*$ is the specified speed and $d$ is the value of $trackPos$ sensor. The first case of reward function assigns a reward of value $-50$ if car gets off track or drives backward.
 To maximize the reward $\theta$ and $d$ should be close to $0$ as well as the difference between the actual speed and the specified one should be minimized.
 Python code implementing the reward function is the following:
 \begin{lstlisting}
@@ -557,21 +557,21 @@ track = np.array(obs['track'])
 trackPos = np.array(obs['trackPos'])
 sp = np.array(obs['speedX'])
 angle = np.array(obs['angle'])
-reward = (np.cos(angle) - np.abs(np.sin(angle)) - np.abs(trackPos) - np.abs(sp-self.wanted_speed)/self.wanted_speed)*20 + 50
+reward = (np.cos(angle) - np.abs(np.sin(angle)) - np.abs(trackPos) - np.abs(sp-self.wanted_speed)/self.wanted_speed)*5
 if sp < self.termination_limit_progress:
   if self.terminal_judge_start < self.time_step:
     print("No progress")
-    reward = -200
+    reward = -50
     episode_terminate = True
     client.R.d['meta'] = True
 else:
   self.terminal_judge_start = self.termination_limit_progress + 100
 if (abs(track.any()) > 1 or abs(trackPos) > 1):
-  reward = -200
+  reward = -50
   episode_terminate = True
   client.R.d['meta'] = True
 if np.cos(angle) < 0:
-  reward = 200
+  reward = -50
   episode_terminate = True
   client.R.d['meta'] = True
 \end{lstlisting}
@@ -579,37 +579,62 @@ In code implementation, a penalization when agent speed is too small has been ad
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.7\textwidth]{reward_plot0}
-  \caption{Plot of reward function for $d = 1$ and $v*=110$}
+  \caption{Plot of reward function for $trackPos = 1$ and $v^*=110$}
   \label{rewardshapingplot0}
 \end{figure}
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.7\textwidth]{reward_plot05}
-  \caption{Plot of reward function for $d = 1$ and $v*=110$}
+  \caption{Plot of reward function for $trackPos = 1$ and $v^*=110$}
   \label{rewardshapingplot05}
 \end{figure}
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.7\textwidth]{reward_plot1}
-  \caption{Plot of reward function for $d = 1$ and $v*=110$}
+  \caption{Plot of reward function for $trackPos = 1$ and $v^*=110$}
   \label{rewardshapingplot1}
 \end{figure}
-Figures \ref{rewardshapingplot0}, \ref{rewardshapingplot05} and \ref{rewardshapingplot1} show the plot of reward function for three values of trackPos varying the speed and the angle. For negative values of trackPos reward function is the same. For $trackPos = 0$ the car is in the middle of the lane and the reward increases.
+Figures \ref{rewardshapingplot0}, \ref{rewardshapingplot05} and \ref{rewardshapingplot1} show the plot of reward function for three values of $trackPos$ varying the speed and the angle. Since $trackPos$ is taken into account only with its absolute value, for negative values of $trackPos$ reward function is the same of the one for positive values. For $trackPos = 0$ the car is in the middle of the lane and the reward increases.
+
+
+
 \chapter{Training and Evaluation}
-Model has been trained for 4000 episodes and it took about 10 hours. Car started moving randomly, which frequently led it out of track and acheiving low reward. After about 600 episodes reward started increasing since car learned how to stay in the middle of the track, but it still was not at the maximum. Reward kept increasing until the agent understood how to maintain a certain average speed by pushing the throttle pedal and the brake one.
+The model has been trained for 500 episodes and it took about 2 hours. Car started moving randomly, which frequently led it out of track and achieving low reward. 
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=.8\textwidth]{reward}
-  \caption{Training Episode Reward Plot with linear y scale}
+  \includegraphics[width=.8\textwidth]{mean_reward}
+  \caption{Episode Reward's Plot}
   \label{rewardplot}
 \end{figure}
+
+After about 400 episodes reward started increasing, since the car learned how to stay in the middle of the track: it understood how to use steering to minimize $trackPos$ and angle. The evolution of this two values is shown in Figures \ref{mean_trackpos} and \ref{mean_angle}. It is important to notice that both, and in particular the angle, stabilize around the $0$: this means that the car manages to keep the track.
+
+\begin{figure}[H]
+\centering
+\caption{Car position sensors' plots}
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{mean_trackpos}
+  \caption{Mean trackPos plot}
+  \label{mean_trackpos}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{mean_angle}
+  \caption{Mean angle plot}
+  \label{mean_angle}
+\end{subfigure}
+\label{mean_plots}
+\end{figure}
+The maximum reward was reached when the agent learned to maintain a certain average speed, by balancing the throttle and the brake pedal. This last stage happened after the 450th episode: Figure \ref{mean_difference} shows the plot of the mean difference between car speed and specified one. It is important to notice that the error stabilizes around values smaller than $10$.
 \begin{figure}[H]
   \centering
-  \includegraphics[width=.8\textwidth]{rewardlog}
-  \caption{Training Episode Reward Plot with logarithmic y scale}
-  \label{rewardplotlog}
+  \includegraphics[width=.8\textwidth]{mean_difference}
+  \caption{Mean average speed error}
+  \label{mean_difference}
 \end{figure}
+
 
 % \begin{figure}[H]
 % \centering
@@ -627,52 +652,37 @@ Model has been trained for 4000 episodes and it took about 10 hours. Car started
 % \caption{Total Episode Reward Plots}
 % \end{figure}
 
-Due to OU process, during trining total reward plot appears quite noised (Figure \ref{rewardplot}) but it shows clearly how the episode reward kept growing up during training. A better looking plot could be generated by using logarithmic scale for y axis (Figure \ref{rewardplotlog}).
+Due to OU process, the training total reward's plot appears quite noisy (Figure \ref{rewardplot}) but it shows clearly how the episode reward kept growing up during training.
 
-Reward plot noise could also due to the chosen reward shaping: in long episodes the agent accumulates high rewards in short episodes (when it goes out of track) negative reward has an high impact on total reward. This problem has been hilighted by Gal Dalal et al. in Safe Exploration in Continuous Action Spaces \cite{SAFEEXPLORATION} but it extremely depends on the environment.
-
+The reward's plot noise could also be caused by the chosen reward shaping: during long episodes the agent accumulates high rewards, while during short ones (when it goes out of track early) negative reward has an high impact on total reward. This problem has been highlighted by Gal Dalal et al. in Safe Exploration in Continuous Action Spaces \cite{SAFEEXPLORATION} but it extremely depends on the environment.
 \begin{figure}[H]
-\centering
-\begin{subfigure}{.20\textwidth}
   \centering
-  \includegraphics[width=.9\linewidth]{corkscrew}
-  \caption{Corkscrew}
-  \label{corkscrew}
-\end{subfigure}%
-\begin{subfigure}{.20\textwidth}
-  \centering
-  \includegraphics[width=.9\linewidth]{forza}
-  \caption{Forza}
-  \label{forza}
-\end{subfigure}
-\begin{subfigure}{.20\textwidth}
-  \centering
-  \includegraphics[width=.9\linewidth]{alpine-1}
-  \caption{Alpine 1}
-  \label{alpine-1}
-\end{subfigure}
-\caption{Train and Test tracks}
+  \includegraphics[width=.2\textwidth]{g-track-1}
+  \caption{CG Speedway number 1 Circuit}
+  \label{g-track-1}
 \end{figure}
 
-Agent has been trained only on Corkscrew track (Figure \ref{corkscrew}), which is a medium level one: it has two more than 90 degree bends and long straight parts.
 
-The model has been evaluated on two other tracks: Forza (Figure \ref{forza}) and Alpine1 (Figure \ref{alpine1}).
-
-The former is a mainly straight circuit with only 5 bends. In this track the challenge was to keep the specified average speed. Two screenshots of this test are provided in Figures \ref{} and \ref{}. The agent managed to mantain the average speed while it was more difficult for it to stay on a fixed speed for the whole run: the plot of the difference from car speed and the specified one is shown in Figure \ref{}.
-
-The latter is composed of a high number of difficult bends, the main trouble here was to avoid going out of track. This task is easier for the car that drives the track without much difficulty as shown in the two screenshots (Figures \ref{} and \ref{}) and the plot of trackPos (Figure \ref{}).
-
+The agent has been trained only on CG Speedway number 1 track (Figure \ref{g-track-1}), which is a medium level one: it has two bends of more than 90 degree angles and long straight parts. This allowed a good training for both maintaining the specified speed and avoiding to go out of track.
+A screenshot of the agent driving on CG Speedway number 1 is shown in Figure \ref{screenshot}.
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=.8\textwidth]{screenshot}
+  \caption{CG Speedway number 1 screenshot}
+  \label{screenshot}
+\end{figure}
 \chapter{Conclusions}
-This project was intended to teach a car how to keep the track and maintain a certain speed. 
+This project was meant to teach a car how to keep the track and maintain a certain speed. 
 
-Reinforcement Learning, and in particular, Deep Deterministic Policy Gradient demonstrated to be powerful and fast algorithms to train agents in continuous state-action space.  
+Reinforcement Learning and, in particular, Deep Deterministic Policy Gradient demonstrated to be powerful and fast algorithms to train agents in continuous state-action space.  
 
-The trained on a single track resulted able to drive on different tracks and act very well mantaining a specified speed. An improvement could be provided by adding the camera to the sensors, although it would be longer to train the model.
+The agent trained on a single track resulted to be able to drive on different tracks and act very well maintaining  a specified speed. An improvement could be provided by adding the camera to the sensors, although it would be longer to train the model.
 
-Car varied continuosly throttle and steering, this led to driving jerky and sliding out of track. To fix this problem, it would be possible to use fixed variations of throttle and steering as actions instead their real values.
+Car varied continuously throttle and steering, this led to driving jerky and sliding out of track. To fix this problem, it would be possible to use fixed variations of throttle and steering as actions instead their real values.
 
 As explained by Gal Dalal et al. \cite{SAFEEXPLORATION} it would be possible to use a Safe Exploration Layer instead of Reward Shaping to teach the agent to stay in the track in order to reduce noise in training phase.
 
+Taking into account the obtained results, it is possible to assert that the project purpose has been accomplished although some improvements could still be adopted in the future. 
 
 
 \backmatter

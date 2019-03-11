@@ -1,6 +1,6 @@
 \contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}
 \contentsline {chapter}{\numberline {2}TORCS}{2}{chapter.2}
-\contentsline {section}{\numberline {2.1}Simulated Car Racing Championship}{3}{section.2.1}
+\contentsline {section}{\numberline {2.1}Simulated Car Racing Championship}{2}{section.2.1}
 \contentsline {chapter}{\numberline {3}Reinforcement Learning}{5}{chapter.3}
 \contentsline {section}{\numberline {3.1}Bellman Equation}{6}{section.3.1}
 \contentsline {section}{\numberline {3.2}Monte Carlo and TD Learning}{7}{section.3.2}
@@ -20,11 +20,11 @@
 \contentsline {section}{\numberline {6.1}Environment}{13}{section.6.1}
 \contentsline {section}{\numberline {6.2}DDPG in Tensorflow}{14}{section.6.2}
 \contentsline {subsection}{\numberline {6.2.1}Critic Network}{14}{subsection.6.2.1}
-\contentsline {section}{\numberline {6.3}Actor Network}{15}{section.6.3}
+\contentsline {section}{\numberline {6.3}Actor Network}{16}{section.6.3}
 \contentsline {section}{\numberline {6.4}Model Update}{17}{section.6.4}
 \contentsline {section}{\numberline {6.5}Ornstein\IeC {\textendash }Uhlenbeck Noise}{19}{section.6.5}
 \contentsline {subsection}{\numberline {6.5.1}Stochastic Brake}{19}{subsection.6.5.1}
 \contentsline {section}{\numberline {6.6}Reward Shaping}{19}{section.6.6}
-\contentsline {chapter}{\numberline {7}Training and Evaluation}{21}{chapter.7}
-\contentsline {chapter}{\numberline {8}Conclusions}{23}{chapter.8}
-\contentsline {chapter}{Bibliography}{24}{section*.7}
+\contentsline {chapter}{\numberline {7}Training and Evaluation}{22}{chapter.7}
+\contentsline {chapter}{\numberline {8}Conclusions}{25}{chapter.8}
+\contentsline {chapter}{Bibliography}{26}{section*.14}

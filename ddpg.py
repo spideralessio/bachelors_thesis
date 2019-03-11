@@ -18,34 +18,29 @@ import sys
 
 OU = OU()       #Ornstein-Uhlenbeck Process
 
-def softmax(x):
-    """Compute softmax values for each sets of scores in x."""
-    e_x = np.exp(x - np.max(x))
-    return e_x / e_x.sum(axis=0) # only difference
-
 def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
     BUFFER_SIZE = 100000
     BATCH_SIZE = 32
     GAMMA = 0.99
     TAU = 0.001     #Target Network HyperParameters
     LRA = 0.0001    #Learning rate for Actor
-    LRC = 0.001     #Lerning rate for Critic
+    LRC = 0.001    #Lerning rate for Critic
 
     action_dim = 2  #Steering/Acceleration/Brake
     state_dim = 25 -2 #of sensors input + wanted_speed
 
-    np.random.seed(1337)
+    np.random.seed(1997)
 
     vision = False
 
     EXPLORE = 100000.
-    episode_count = 10000
+    episode_count = 4000
     max_steps = 100000
     reward = 0
     done = False
     step = 0
-    epsilon = 1
-    indicator = 0
+    epsilon = 1.
+    indicator = 0.
 
     #Tensorflow GPU optimization
     config = tf.ConfigProto()
@@ -77,7 +72,7 @@ def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
     except:
         print("Cannot find the weight")
     summary_writer = tf.summary.FileWriter("output", sess.graph)
-
+    TOT_J = 0
     print("TORCS Experiment Start.")
     for i in range(episode_count):
         print("Episode : " + str(i) + " Replay Buffer " + str(buff.count()))
@@ -91,11 +86,14 @@ def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
         #gear = 1
         #gear_p += 0.001
         s_t = np.hstack((ob.angle, ob.track, ob.trackPos, ob.speedX, env.wanted_speed))
-        
+        summary = tf.Summary()
         total_reward = 0.
         loss = 0.
+        ANGLE = 0.
+        TRACKPOS = 0.
         for j in range(max_steps):
             epsilon -= 1.0 / EXPLORE
+            print("EPSILON", epsilon)
             a_t = np.zeros([1,action_dim])
             noise_t = np.zeros([1,action_dim])
             
@@ -110,7 +108,7 @@ def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
             #The following code do the stochastic brake
             if random.random() <= 0.1 and train_indicator:
                 print("********Now we apply the brake***********")
-                noise_t[0][1] = train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][1],  -0.1, 1.00, 0.10)
+                noise_t[0][1] = train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][1],  -0.05, 1.00, 0.10)
             
             for x in range(action_dim):
                 a_t[0][x] = a_t_original[0][x] + noise_t[0][x]
@@ -147,7 +145,8 @@ def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
 
             s_t1 = np.hstack((ob.angle, ob.track, ob.trackPos, ob.speedX, env.wanted_speed))
             buff.add(s_t, a_t[0], r_t, s_t1, done)      #Add replay buffer
-            
+            ANGLE += ob.angle
+            TRACKPOS += ob.trackPos
             #Do the batch update
             batch = buff.getBatch(BATCH_SIZE)
             states = np.asarray([e[0] for e in batch])
@@ -176,11 +175,10 @@ def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
             total_reward += r_t
             s_t = s_t1
         
-            #print("Episode", i, "Step", step, "Action", a_t[0], "Reward", r_t, "Loss", loss)
+            print("Episode", i, "Step", step, "Action", a_t[0], "Reward", r_t, "Loss", loss)
             step += 1
             if done:
                 break
-        
         episodes_rewards.append(total_reward)
         print("mean_reward", np.array(episodes_rewards).mean())
 
@@ -204,11 +202,27 @@ def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
                 critic.model.save_weights("criticmodel.%d.h5"%i, overwrite=True)
                 with open("criticmodel.%d.json"%i, "w") as outfile:
                     json.dump(critic.model.to_json(), outfile)
-        summary = tf.Summary()
+        
         summary.value.add(tag='episode_reward', simple_value=total_reward)
         summary_writer.add_summary(summary, i)
         summary_writer.flush()
         summary = tf.Summary()
+
+        summary.value.add(tag='mean_angle', simple_value=ANGLE/(j+1))
+        summary_writer.add_summary(summary, i)
+        summary_writer.flush()
+        summary = tf.Summary()
+
+        summary.value.add(tag='mean_trackpos', simple_value=TRACKPOS/(j+1))
+        summary_writer.add_summary(summary, i)
+        summary_writer.flush()
+        summary = tf.Summary()
+
+        summary.value.add(tag='avgspeed-wantedspeed', simple_value=np.abs(env.avg_speed - env.wanted_speed))
+        summary_writer.add_summary(summary, i)
+        summary_writer.flush()
+        summary = tf.Summary()
+        
         summary.value.add(tag='loss', simple_value=loss)
         summary_writer.add_summary(summary, i)
         summary_writer.flush()
